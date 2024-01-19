@@ -1,13 +1,24 @@
 <component name="libraryTable">
   <library name="lib">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/../openjfx-21.0.2_linux-x64_bin-sdk/javafx-sdk-21.0.2/lib" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/lib" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/legal" />
     </CLASSES>
     <JAVADOC />
     <NATIVE>
-      <root url="file://$PROJECT_DIR$/../openjfx-21.0.2_linux-x64_bin-sdk/javafx-sdk-21.0.2/lib" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/lib" />
     </NATIVE>
-    <SOURCES />
-    <jarDirectory url="file://$PROJECT_DIR$/../openjfx-21.0.2_linux-x64_bin-sdk/javafx-sdk-21.0.2/lib" recursive="false" />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/src/javafx.base" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/src/javafx.controls" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/src/javafx.fxml" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/src/javafx.graphics" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/src/javafx.media" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/src/javafx.swing" />
+      <root url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/src/javafx.web" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/javafx-sdk-21.0.2/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/javafx-sdk-21.0.2" recursive="false" type="SOURCES" />
   </library>
 </component>
