@@ -1,11 +1,14 @@
 package Connectivity.Client;
 
+import Connectivity.Protocol.GoProtocol;
 import Connectivity.SocketConnection;
+import Game.Player.Player;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
 public class PlayerConnection extends SocketConnection {
+  public Player player;
 
   /**
    * Create a new SocketConnection. This is not meant to be used directly. Instead, the SocketServer
@@ -26,7 +29,7 @@ public class PlayerConnection extends SocketConnection {
    * @param port the port of the server to connect to
    * @throws IOException if the connection cannot be made or there was some other I/O problem
    */
-  protected PlayerConnection(InetAddress host, int port) throws IOException {
+  public PlayerConnection(InetAddress host, int port) throws IOException {
     super(host, port);
   }
 
@@ -48,7 +51,16 @@ public class PlayerConnection extends SocketConnection {
    * @param message the message received from the connection
    */
   @Override
-  protected void handleMessage(String message) {
+  public void handleMessage(String message) {
+    String[] splitString = message.replace(" ", "").split("~");
+
+    switch (splitString[0]) {
+      case GoProtocol.LOGIN -> {
+        sendMessage(message);
+        player.setUsername(splitString[1]);
+      }
+      case GoProtocol.QUEUE -> sendMessage(message);
+    }
 
   }
 
@@ -58,5 +70,10 @@ public class PlayerConnection extends SocketConnection {
   @Override
   protected void handleDisconnect() {
 
+  }
+
+  @Override
+  public boolean sendMessage(String message) {
+    return super.sendMessage(message);
   }
 }
