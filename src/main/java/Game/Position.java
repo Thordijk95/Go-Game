@@ -8,6 +8,14 @@ public class Position {
   // The state of the position is stored as a board
   private List<Intersection> intersectionList;
 
+  public Position(int dimension) {
+    intersectionList = new ArrayList<>();
+    for (int i = 0; i < dimension*dimension; i++) {
+
+      intersectionList.add(new Intersection(i));
+    }
+  }
+
   /**
    * Construct the new position from the old position, adjusting to represent the move.
    * @param oldPosition previous position of the board
@@ -17,9 +25,9 @@ public class Position {
     intersectionList = new ArrayList<>();
     for (int i = 0; i < oldPosition.intersectionList.size(); i++) {
       if (i == move.intersection.index) {
-        intersectionList.set(i, move.intersection);
+        intersectionList.add(move.intersection);
       } else {
-        intersectionList.set(i, oldPosition.intersectionList.get(i));
+        intersectionList.add(oldPosition.intersectionList.get(i));
       }
     }
   }
