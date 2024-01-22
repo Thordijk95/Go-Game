@@ -25,6 +25,7 @@ replay_pid*
 
 # Visual paradigm back ups
 *.bak*
+*.vpp.lck
 
 # Prevent build folder from being tracked in git, target is created every time the project is run
 /target
