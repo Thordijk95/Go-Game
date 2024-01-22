@@ -89,7 +89,7 @@ public class GoServer extends SocketServer {
 
   protected Game startGame() {
     Game newGame = new GoGame(gameDimension);
-    games.add(newGame);
+    games.add((Game) newGame);
     return newGame;
   }
 }
