@@ -1,5 +1,6 @@
 package Connectivity.Server;
 
+import Connectivity.Server.*;
 import Connectivity.Protocol.GoProtocol;
 
 import Connectivity.SocketConnection;
@@ -93,8 +94,8 @@ public class ServerConnection extends SocketConnection {
    * @param sender of the message (client)
    * @param message being sent by the client
    */
-  public void sendMove(String sender, String message) {
-    super.sendMessage(message);
+  public void sendMove(String message) {
+    super.sendMessage(String.format(message + ", " + username));
   }
 
   public void sendMessage(GoProtocol protocol) { }
