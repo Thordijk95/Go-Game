@@ -1,7 +1,12 @@
 package Game.Player;
 
-public class AbstractPlayer implements Player{
+import Connectivity.Client.PlayerConnection;
+
+public abstract class AbstractPlayer implements Player{
+  private PlayerConnection playerConnection;
   private String username;
+
+  public AbstractPlayer() {};
 
   public AbstractPlayer(String username) {
     this.username = username;
@@ -11,5 +16,15 @@ public class AbstractPlayer implements Player{
   public String getUsername() {
     return username;
   }
+
+  @Override
+  public void setUsername(String username) {
+    this.username = username;
+  }
+  @Override
+  public abstract void sendMessage(String message);
+
+  @Override
+  public abstract void sendMove(String message);
 }
 
