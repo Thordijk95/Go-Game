@@ -7,7 +7,7 @@ public class Intersection {
 
   public Intersection(int index) {
     this.index = index;
-    stone = Stone.None;
+    stone = Stone.NONE;
   }
 }
 

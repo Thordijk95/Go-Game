@@ -1,7 +1,7 @@
 package Game;
 
 public enum Stone {
-  None,
-  Black,
-  White
+  NONE,
+  BLACK,
+  WHITE
 }
