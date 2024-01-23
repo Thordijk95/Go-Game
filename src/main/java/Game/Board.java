@@ -6,7 +6,7 @@ import java.util.List;
  * Class that represents the board where the game is played.
  */
 public class Board {
-  public Integer dimension;
+  public int dimension;
   public Position currentPosition;
   private List<Position> previousPositions;
 
