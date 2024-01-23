@@ -3,7 +3,6 @@ package Game.Player;
 import Connectivity.Client.PlayerConnection;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class PlayerPlayer extends Game.Player.AbstractPlayer {
