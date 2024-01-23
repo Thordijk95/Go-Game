@@ -1,9 +1,6 @@
 package Connectivity.Server;
 
-import Connectivity.*;
-import Connectivity.SocketConnection;
-import Game.Player.AbstractPlayer;
-import Game.Player.Player;
+import Game.Move;
 
 public class ConnectionHandler {
   public ServerConnection serverConnection;
@@ -26,7 +23,8 @@ public class ConnectionHandler {
     goServer.addPlayer(this);
   }
 
-  public void receiveMove(String move) {
+  public void receiveMove(Move move) {
+    goServer.receiveMove(move, this);
 
   }
 
