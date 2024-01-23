@@ -1,10 +1,10 @@
 package Connectivity.Server;
 
-import Connectivity.Server.*;
+import Connectivity.SocketConnection;
 import Connectivity.Protocol.GoProtocol;
 
-import Connectivity.SocketConnection;
-import Game.Player.Player;
+import Game.Move;
+import Game.Stone;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -67,7 +67,9 @@ public class ServerConnection extends SocketConnection {
           connectionHandler.receiveUsername(substrings[1]);;
         }
         case GoProtocol.MOVE -> {
-          connectionHandler.receiveMove(substrings[1]);
+          Stone stone = substrings[2].toLowerCase().equals("Black") ? Stone.BLACK : Stone.WHITE;
+          Move newMove = new Move(stone, Integer.parseInt(substrings[1]));
+          connectionHandler.receiveMove(newMove);
         }
         case GoProtocol.QUEUE -> {
           connectionHandler.receiveQueueRequest();
