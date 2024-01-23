@@ -81,15 +81,31 @@ public class GoServer extends SocketServer {
 
   protected void addPlayer(ConnectionHandler player) {
     connectionHandlerList.add(player);
+
   }
 
   protected void removePlayer(ConnectionHandler player) {
     connectionHandlerList.remove(player);
   }
 
-  protected Game startGame() {
-    Game newGame = new GoGame(gameDimension);
-    games.add((Game) newGame);
-    return newGame;
+  /**
+   * When a queue reaches the length of 2 a game is started with the players currently in the queue.
+   * This game is added to the games list on the server
+   */
+  protected void startGame() {
+    GoGame game = new GoGame(gameDimension, queue);
+    queue.clear();
+    games.add(game);
+  }
+
+  protected void receiveMove(Move move, ConnectionHandler player) {
+    // Get the game that the player is taking part in.
+    Game currentGame;
+    for (Game game : games) {
+      if (game.getPLayers().containsValue(player)) {
+        currentGame = game;
+        currentGame.validateMove(move, player);
+      }
+    }
   }
 }
