@@ -7,6 +7,7 @@ import java.util.List;
 public class Position {
   // The state of the position is stored as a board
   private List<Intersection> intersectionList;
+  public Score score = new Score();
 
   public Position(int dimension) {
     intersectionList = new ArrayList<>();
@@ -32,6 +33,10 @@ public class Position {
     }
   }
 
+  public Intersection getIntersection(int index) {
+    return intersectionList.get(index);
+  }
+
   /**
    * Compare this position to a proposed new position to see if they are equal.
    * @param newPosition that is proposed by a player
@@ -47,5 +52,84 @@ public class Position {
     }
     // end of the position is reached, so everything was the same and the positions are equal
     return true;
+  }
+
+  @Override
+  public String toString() {
+    String position = "";
+    int dimension = (int) Math.sqrt(intersectionList.size());
+    for (int i = 0; i < intersectionList.size(); i++) {
+      if ((i) == 0) { //first line, create border
+        position = String.format(position+ upperBoarder(dimension) + "|");
+      }
+      String stone = stoneToString(intersectionList.get(i).stone, i);
+      // Check for new row
+      if (i % dimension == 0 && i != 0) {
+        position = String.format(position + "\n" + boarder(dimension) + "\n|");
+      }
+      position = String.format(position + stone);
+      if (i == intersectionList.size()-1) { // Last line create lower border
+        position = String.format(position + "\n" + lowerBoarder(dimension) );
+      }
+    }
+
+    return position;
+  }
+
+  private String upperBoarder(int dimension) {
+    String line = "|";
+    for (int j = 0; j < dimension; j++) {
+      line = String.format(line + "‾‾‾‾");
+    }
+    line = String.format(line + "|\n");
+    return line;
+  }
+  private String boarder(int dimension) {
+    String line = "|";
+    for (int i = 0; i < dimension; i++) {
+      line = String.format(line + "---");
+      if (i != dimension-1) {
+        line = String.format(line + "+");
+      }
+    }
+    line = String.format(line + "|");
+    return line;
+  }
+  private String lowerBoarder(int dimension) {
+    String line = "|";
+    for (int j = 0; j < dimension; j++) {
+      line = String.format(line + "____");
+    }
+    line = String.format(line + "|");
+    return line;
+  }
+  private String stoneToString(Stone stone, int i) {
+    String black = "●";
+    String whtie = "○";
+    String none = "+";
+    switch (stone) {
+      case NONE -> { return noneToNumber(none, i); }
+      case BLACK -> { return black; }
+      case WHITE -> { return whtie; }
+      default -> {return none; }
+    }
+  }
+
+  private String noneToNumber (String stone, int i) {
+    if (stone.equals("+")) {
+      if (i < 10) {
+        stone = String.format(" " + i + " |");
+      } else if (i < 100) {
+        stone = String.format(" " + i + "|");
+      } else {
+        stone = String.format(i + "|");
+      }
+    }
+    return stone;
+  }
+
+  public static void main(String[] args) {
+    Position newPosition = new Position(11);
+    System.out.println(newPosition);
   }
 }
