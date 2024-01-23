@@ -7,34 +7,14 @@ import java.util.List;
 public class GoLogic {
 
   /**
-   * Check if the newPosition is valid under the ko rule.
-   * @param newPosition being proposed by a player
-   * @param oldPositions stored in the game
-   * @return
-   */
-  public boolean checkKoRule(Position newPosition, List<Position> oldPositions) {
-    for (Position oldPosition : oldPositions){
-      if (oldPosition.equalTo(newPosition)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
    * Calculate the score of the current position.
    * @param position that we want to know the score of
    * @return the score of the position
    */
-  public int score(Position position) {
+  public Score score(Position position) {
+    Score score = new Score();
     // Calculate the score of both players in the current position
-    return 0; //TODO return the actual score of the position
-  }
-
-  public Player getWinner(Game game) {
-    // returns the winner of the board connected to the game logic
-    return (Player) new PlayerPlayer(); // TODO return the proper player
-
+    return score; //TODO return the actual score of the position
   }
 
   /**
@@ -51,5 +31,31 @@ public class GoLogic {
       int x = index % dimension;
       return new IntersectionCoordinate(x,y);
     }
+  }
+
+  /**
+   * Check if the proposed move is a valid move.
+   * @param position of the board.
+   * @param move being played.
+   * @return if the move is valid.
+   */
+  protected boolean validMove(List<Position> oldPositions, Position position, Move move) {
+    // Check if the intersection is unoccupied
+    return (position.getIntersection(move.index).stone == Stone.NONE && checkKoRule(position, oldPositions));
+  }
+
+  /**
+   * Check if the newPosition is valid under the ko rule.
+   * @param newPosition being proposed by a player
+   * @param oldPositions stored in the game
+   * @return
+   */
+  public boolean checkKoRule(Position newPosition, List<Position> oldPositions) {
+    for (Position oldPosition : oldPositions){
+      if (oldPosition.equalTo(newPosition)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
