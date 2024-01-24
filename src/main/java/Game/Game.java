@@ -14,9 +14,11 @@ public interface Game{
   Position getStatePosition();
   boolean validateMove(Move move, ConnectionHandler player);
 
-  void updateState();
+  void updateState(Move move);
 
   HashMap<Stone, ConnectionHandler> getPLayers();
   void switchTurn();
+
+  void setPosition(Position position);
 
 }
