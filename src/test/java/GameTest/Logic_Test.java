@@ -10,6 +10,7 @@ import Game.Game;
 import Game.*;
 import com.nedap.go.Go;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,17 +55,22 @@ public class Logic_Test {
     newPosition.setIntersection(59, Stone.BLACK);
     newPosition.setIntersection(58, Stone.BLACK);
 
-
     goGame.setPosition(newPosition);
     System.out.println(goGame.getStateString());
-    List<Cluster> clusters = logic.stoneClusters(goGame.getStatePosition(), dimension);
-    assertEquals(4,clusters.size());
-    // Check that the borders of each cluster are found correctly
-    assertEquals(clusters.get(0).intersectionList.size(), clusters.get(0).coordinatesBorder.size());
-    assertEquals(clusters.get(1).intersectionList.size(), clusters.get(1).coordinatesBorder.size());
-    assertEquals(clusters.get(2).intersectionList.size(), clusters.get(2).coordinatesBorder.size());
+    HashMap<Stone,List<Cluster>> clustersHashMap = logic.stoneClusters(goGame.getStatePosition(), dimension);
+
+    List<Cluster> blackClusters = clustersHashMap.get(Stone.BLACK);
+    List<Cluster> whiteClusters = clustersHashMap.get(Stone.WHITE);
+
+    // Check that all clusters are found, and have the correct size
+    // check that the borders of each cluster are found correctly
+    assertEquals(2,blackClusters.size());
+    assertEquals(2,whiteClusters.size());
+    assertEquals(blackClusters.getFirst().intersectionList.size(), blackClusters.getFirst().coordinatesBorder.size());
+    assertEquals(whiteClusters.getFirst().intersectionList.size(), whiteClusters.getFirst().coordinatesBorder.size());
+    assertEquals(whiteClusters.get(1).intersectionList.size(), whiteClusters.get(1).coordinatesBorder.size());
     // Test cluster with 1 stone not part of the boarder
-    assertEquals(clusters.get(3).intersectionList.size(), clusters.get(3).coordinatesBorder.size()+1);
+    assertEquals(6, blackClusters.get(1).coordinatesBorder.size());
   }
 
   @Test

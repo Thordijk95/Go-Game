@@ -4,6 +4,7 @@ import Game.Player.Player;
 import Game.Player.PlayerPlayer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import javafx.util.Pair;
 
@@ -71,8 +72,8 @@ public class GoLogic {
    * @param dimension of the board.
    * @return a list of clusters
    */
-  public List<Cluster> stoneClusters(Position position, int dimension) {
-    List<Cluster> clusters = new ArrayList<>();
+  public HashMap<Stone, List<Cluster>> stoneClusters(Position position, int dimension) {
+    HashMap<Stone, List<Cluster>> clusterHashMap = new HashMap<>();
     for (int i = 0; i < dimension*dimension; i++) {
       int[] coordinate = calculateXY(i, dimension);
       List<int[]> neighborsStraight = findNeighborsStraigh(coordinate, dimension);
@@ -80,40 +81,53 @@ public class GoLogic {
       boolean found = false;
       // Check if the current intersection is taken by one of the players
       if (position.getIntersection(i).stone != Stone.NONE) {
-        if (clusters.isEmpty()) { // first cluster found
+        if (clusterHashMap.isEmpty()) { // first cluster found
           Cluster cluster = new Cluster(position.getIntersection(i).stone);
           cluster.intersectionList.add(coordinate);
           defineBorder(position, dimension, neighborsStraight, cluster, coordinate);
-          clusters.add(cluster);
+          clusterHashMap.put(cluster.stone, List.of(cluster));
         } else {
-          // Check if the current intersection is connected to one of the existing clusters and the same stone
-          for (int[] neighbor : neighbors) {
-            for (Cluster cluster : clusters) {
-              for (int[] intersection : cluster.intersectionList) {
-                if (Arrays.equals(intersection, neighbor) && position.getIntersection(i).stone == cluster.stone) {
-                  cluster.intersectionList.add(coordinate);
-                  defineBorder(position, dimension, neighborsStraight, cluster, coordinate);
-                  found = true;
-                  break;
-                } else if (Arrays.equals(intersection, neighbor) && position.getIntersection(i).stone != cluster.stone) {
-                  boolean front = true;
+          // check if the key is already in the HashMap
+          if (clusterHashMap.containsKey(position.getIntersection(i).stone)){
+            // Check if the current intersection is connected to one of the existing clusters and has same stone
+            for (int[] neighbor : neighbors) {
+              List<Cluster> clusters = clusterHashMap.get(position.getIntersection(i).stone);
+              for (Cluster cluster : clusters) {
+                for (int[] intersection : cluster.intersectionList) {
+                  if (Arrays.equals(intersection, neighbor) && position.getIntersection(i).stone == cluster.stone) {
+                    cluster.intersectionList.add(coordinate);
+                    defineBorder(position, dimension, neighborsStraight, cluster, coordinate);
+                    found = true;
+                    break;
+                  }
                 }
               }
+              if (found) {break;}
             }
-            if (found) {break;}
           }
           // All neighbors are part of a different cluster or no cluster, make a new cluster
           if (!found) {
             Cluster cluster = new Cluster(position.getIntersection(i).stone);
             cluster.intersectionList.add(coordinate);
             defineBorder(position, dimension, neighborsStraight, cluster, coordinate);
-            clusters.add(cluster);
+            List<Cluster> hashedClusters;
+            List<Cluster> clusterList = new ArrayList<>();
+            if (clusterHashMap.get(cluster.stone) != null){
+              hashedClusters = clusterHashMap.get(cluster.stone);
+              for (Cluster oldCluster : hashedClusters) {
+                clusterList.add(oldCluster);
+              }
+              clusterList.add(cluster);
+            } else {
+              clusterList = List.of(cluster);
+            }
+            clusterHashMap.put(cluster.stone, clusterList);
           }
         }
       }
     }
 
-    return clusters;
+    return clusterHashMap;
   }
 
   /**
