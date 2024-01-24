@@ -25,8 +25,10 @@ public class Position {
   public Position(Position oldPosition, Move move) {
     intersectionList = new ArrayList<>();
     for (int i = 0; i < oldPosition.intersectionList.size(); i++) {
-      if (i == move.intersection.index) {
-        intersectionList.add(move.intersection);
+      if (i == move.index) {
+        Intersection newIntersection = new Intersection(move.index);
+        newIntersection.stone = move.stone;
+        intersectionList.add(newIntersection);
       } else {
         intersectionList.add(oldPosition.intersectionList.get(i));
       }
@@ -37,6 +39,9 @@ public class Position {
     return intersectionList.get(index);
   }
 
+  public void setIntersection(int index, Stone stone) {
+    intersectionList.get(index).stone = stone;
+  }
   /**
    * Compare this position to a proposed new position to see if they are equal.
    * @param newPosition that is proposed by a player
@@ -104,19 +109,18 @@ public class Position {
     return line;
   }
   private String stoneToString(Stone stone, int i) {
-    String black = "●";
-    String whtie = "○";
-    String none = "+";
+    String white = " ● |";
+    String black = " ○ |";
+    String none = " + |";
     switch (stone) {
-      case NONE -> { return noneToNumber(none, i); }
       case BLACK -> { return black; }
-      case WHITE -> { return whtie; }
-      default -> {return none; }
+      case WHITE -> { return white; }
+      default -> {return noneToNumber(none, i); }
     }
   }
 
   private String noneToNumber (String stone, int i) {
-    if (stone.equals("+")) {
+    if (stone.equals(" + |")) {
       if (i < 10) {
         stone = String.format(" " + i + " |");
       } else if (i < 100) {
