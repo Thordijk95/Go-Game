@@ -66,4 +66,10 @@ public class Logic_Test {
     // Test cluster with 1 stone not part of the boarder
     assertEquals(clusters.get(3).intersectionList.size(), clusters.get(3).coordinatesBorder.size()+1);
   }
+
+  @Test
+  void testScoring() {
+    Position newPosition = new Position(dimension);
+
+  }
 }
