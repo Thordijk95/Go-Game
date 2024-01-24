@@ -81,7 +81,6 @@ public class GoServer extends SocketServer {
 
   protected void addPlayer(ConnectionHandler player) {
     connectionHandlerList.add(player);
-
   }
 
   protected void removePlayer(ConnectionHandler player) {
@@ -104,7 +103,9 @@ public class GoServer extends SocketServer {
     for (Game game : games) {
       if (game.getPLayers().containsValue(player)) {
         currentGame = game;
-        currentGame.validateMove(move, player);
+        if (currentGame.validateMove(move, player)) {
+          currentGame.updateState(move);
+        }
       }
     }
   }
