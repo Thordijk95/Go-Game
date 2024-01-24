@@ -8,7 +8,6 @@ import java.util.List;
 public class Board {
   public int dimension;
   public Position currentPosition;
-  private List<Position> previousPositions;
 
   /**
    * Create a new board.
@@ -22,10 +21,10 @@ public class Board {
 
   /**
    * Update the current position of the board with the new position.
-   * @param newPosition on the board
+   * @param move on the board
    */
-  public void updatePosition(Position newPosition) {
-    currentPosition = newPosition;
+  public void newPosition(Move move) {
+    currentPosition = new Position(currentPosition, move);
   }
 
   /**
