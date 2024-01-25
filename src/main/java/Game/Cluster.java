@@ -10,12 +10,12 @@ public class Cluster {
   public List<int[]> coordinatesBorder;
 
   public boolean hasFreedom;
+  public boolean hasTerritory;
 
   public Cluster(Stone stone) {
     this.stone = stone;
     intersectionList = new ArrayList<>();
     coordinatesBorder = new ArrayList<>();
-    hasFreedom = true;
   }
 
 
