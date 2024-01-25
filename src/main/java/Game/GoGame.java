@@ -30,6 +30,7 @@ public class GoGame implements Game{
     players.put(Stone.BLACK, queuedPlayers.get(0));
     players.put(Stone.WHITE, queuedPlayers.get(1));
     turn = players.get(Stone.BLACK);
+    logic.dimension = dimension;
   }
 
   /**
@@ -42,7 +43,6 @@ public class GoGame implements Game{
     previousPositions.add(board.currentPosition);
     // Define the new board position
     board.currentPosition = new Position(board.currentPosition, move);
-
     // Store the score of the new position
     Score score = logic.score(board.currentPosition);
     board.currentPosition.score = score;
@@ -87,9 +87,9 @@ public class GoGame implements Game{
    */
   public Stone getWinner() {
     // returns the winner of the board connected to the game logic
-    if (board.currentPosition.score.pointsBlack > board.currentPosition.score.pointsWhite) {
+    if (board.currentPosition.score.scoreBlack > board.currentPosition.score.scoreWhite) {
       return Stone.BLACK;
-    } else if (board.currentPosition.score.pointsBlack < board.currentPosition.score.pointsWhite) {
+    } else if (board.currentPosition.score.scoreBlack < board.currentPosition.score.scoreWhite) {
       return Stone.WHITE;
     } else { return Stone.NONE; }
   }

@@ -7,7 +7,7 @@ import java.util.List;
 public class Position {
   // The state of the position is stored as a board
   private List<Intersection> intersectionList;
-  public Score score = new Score();
+  public Score score;
 
   public Position(int dimension) {
     intersectionList = new ArrayList<>();
@@ -15,6 +15,7 @@ public class Position {
 
       intersectionList.add(new Intersection(i));
     }
+    score = new Score(0,0);
   }
 
   /**
@@ -33,6 +34,16 @@ public class Position {
         intersectionList.add(oldPosition.intersectionList.get(i));
       }
     }
+  }
+
+  /**
+   * Convert a given coordinate back to an index.
+   * @param intersection targeted
+   * @param dimension of the board
+   * @return the index of the intersection
+   */
+  public int convertXYtoIndex(int[] intersection, int dimension) {
+    return intersection[1] * dimension + intersection[0];
   }
 
   public Intersection getIntersection(int index) {
@@ -65,23 +76,23 @@ public class Position {
     int dimension = (int) Math.sqrt(intersectionList.size());
     for (int i = 0; i < intersectionList.size(); i++) {
       if ((i) == 0) { //first line, create border
-        position = String.format(position+ upperBoarder(dimension) + "|");
+        position = String.format(position+ upperBorder(dimension) + "|");
       }
       String stone = stoneToString(intersectionList.get(i).stone, i);
       // Check for new row
       if (i % dimension == 0 && i != 0) {
-        position = String.format(position + "\n" + boarder(dimension) + "\n|");
+        position = String.format(position + "\n" + border(dimension) + "\n|");
       }
       position = String.format(position + stone);
       if (i == intersectionList.size()-1) { // Last line create lower border
-        position = String.format(position + "\n" + lowerBoarder(dimension) );
+        position = String.format(position + "\n" + lowerBorder(dimension) );
       }
     }
 
     return position;
   }
 
-  private String upperBoarder(int dimension) {
+  private String upperBorder(int dimension) {
     String line = "|";
     for (int j = 0; j < dimension; j++) {
       line = String.format(line + "‾‾‾‾");
@@ -89,7 +100,7 @@ public class Position {
     line = String.format(line + "|\n");
     return line;
   }
-  private String boarder(int dimension) {
+  private String border(int dimension) {
     String line = "|";
     for (int i = 0; i < dimension; i++) {
       line = String.format(line + "---");
@@ -100,7 +111,7 @@ public class Position {
     line = String.format(line + "|");
     return line;
   }
-  private String lowerBoarder(int dimension) {
+  private String lowerBorder(int dimension) {
     String line = "|";
     for (int j = 0; j < dimension; j++) {
       line = String.format(line + "____");
