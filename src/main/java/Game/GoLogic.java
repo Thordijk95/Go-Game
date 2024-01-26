@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import javafx.geometry.Pos;
 
 public class GoLogic {
 
@@ -16,12 +17,22 @@ public class GoLogic {
    * @return the score of the position
    */
   public Score score(Position position) {
-    HashMap<Stone, List<Cluster>> stoneClusterHashMap;
-    stoneClusterHashMap = stoneClusters(position);
-    List<Cluster> blackClusters = stoneClusterHashMap.get(Stone.BLACK);
-    List<Cluster> whiteClusters = stoneClusterHashMap.get(Stone.WHITE);
+    int scoreBlack = 0;
+    int scoreWhite = 0;
+    HashMap<Stone, List<Cluster>> stoneClusterHashMap = findClusters(position);;
+    clusterTerritory(stoneClusterHashMap, position);
+    if (stoneClusterHashMap.get(Stone.BLACK) != null) {
+      for (Cluster cluster : stoneClusterHashMap.get(Stone.BLACK)) {
+        scoreBlack += cluster.territoryList.size();
+      }
+    }
+    if (stoneClusterHashMap.get(Stone.WHITE) != null) {
+      for (Cluster cluster : stoneClusterHashMap.get(Stone.WHITE)) {
+        scoreWhite += cluster.territoryList.size();
+      }
+    }
 
-    Score score = new Score(0, 0);
+    Score score = new Score(scoreBlack, scoreWhite);
     // Calculate the score of both players in the current position
     return score; //TODO return the actual score of the position
   }
@@ -45,12 +56,17 @@ public class GoLogic {
     }
   }
 
+  public int calculateIndex(int[] coordinate) {
+    return coordinate[0] + coordinate[1] * dimension;
+  }
+
   /**
    * Check if the proposed move is a valid move.
    * @param position of the board.
    * @param move     being played.
    * @return if the move is valid.
    */
+  //TODO check self capture
   protected boolean validMove(List<Position> oldPositions, Position position, Move move) {
     // Check if the intersection is unoccupied
     return position.getIntersection(move.index).stone == Stone.NONE && checkKoRule(position,
@@ -64,6 +80,7 @@ public class GoLogic {
    * @param oldPositions stored in the game
    * @return if the new position adheres to the KO rule
    */
+  //TODO fix this KoRule implementation
   public boolean checkKoRule(Position newPosition, List<Position> oldPositions) {
     for (Position oldPosition : oldPositions) {
       if (oldPosition.equalTo(newPosition)) {
@@ -73,86 +90,136 @@ public class GoLogic {
     return true;
   }
 
-  /**
-   * Find all the clusters of stones, cluster is any group of neighboring stones of the same color.
-   *
-   * @param position of the board.
-   * @return a HashMap of clusters
-   */
-  public HashMap<Stone, List<Cluster>> stoneClusters(Position position) {
+//  public boolean checkSelfCapture(Position potentialPosition, Move move) {
+//    // check if all neighbors are either unoccupied or of the same color
+//    // Self capture is allowed provided that it resulted in a capture.
+//    List<int[]> neighbors = findNeighborsStraight(calculateXY(move.index));
+//    for (int[] neighbor : neighbors ) {
+//      if (potentialPosition.getIntersection(neighbor).stone ==
+//    }
+//  }
+
+  public HashMap<Stone, List<Cluster>> findClusters(Position position) {
     HashMap<Stone, List<Cluster>> clusterHashMap = new HashMap<>();
-    for (int i = 0; i < dimension * dimension; i++) {
-      int[] intersectionCoordinate = calculateXY(i);
-      List<int[]> neighborsStraight = findNeighborsStraight(intersectionCoordinate);
-      List<int[]> neighbors = findNeighborsDiagonal(neighborsStraight, intersectionCoordinate);
-      boolean found = false;
-      // Check if the current intersection is taken by one of the players
-      if (position.getIntersection(i).stone != Stone.NONE) {
-        if (clusterHashMap.isEmpty()) { // first cluster found
-          Cluster cluster = new Cluster(position.getIntersection(i).stone);
-          cluster.intersectionList.add(intersectionCoordinate);
-          defineBorder(position, neighborsStraight, cluster, intersectionCoordinate);
-          clusterHashMap.put(cluster.stone, List.of(cluster));
-        } else {
-          // check if the key is already in the HashMap
-          if (clusterHashMap.containsKey(position.getIntersection(i).stone)) {
-            // Check if the current intersection is connected to one of the existing clusters
-            // and has same stone
-            for (int[] neighbor : neighbors) {
-              List<Cluster> clusters = clusterHashMap.get(position.getIntersection(i).stone);
-              for (Cluster cluster : clusters) {
-                for (int[] intersection : cluster.intersectionList) {
-                  if (Arrays.equals(intersection, neighbor)
-                      && position.getIntersection(i).stone == cluster.stone) {
-                    cluster.intersectionList.add(intersectionCoordinate);
-                    defineBorder(position, neighborsStraight, cluster, intersectionCoordinate);
-                    found = true;
-                    break;
-                  }
-                }
-              }
-              if (found) {
-                break;
-              }
-            }
-          }
-          // All neighbors are part of a different cluster or no cluster, make a new cluster
-          if (!found) {
-            Cluster cluster = new Cluster(position.getIntersection(i).stone);
-            cluster.intersectionList.add(intersectionCoordinate);
-            defineBorder(position, neighborsStraight, cluster, intersectionCoordinate);
-            List<Cluster> hashedClusters;
-            List<Cluster> clusterList;
-            if (clusterHashMap.get(cluster.stone) != null) {
-              // Create a copy of the cluster list
-              hashedClusters = clusterHashMap.get(cluster.stone);
-              clusterList = new ArrayList<>(hashedClusters);
-              clusterList.add(cluster);
-            } else {
-              clusterList = List.of(cluster);
-            }
-            clusterHashMap.put(cluster.stone, clusterList);
+    List<Cluster> blackClusters = new ArrayList<>();
+    List<Cluster> whiteClusters = new ArrayList<>();
+    List<int[]> occupiedIntersections = new ArrayList<>();
+
+    // Parse all the fields in the position
+    // When stone is encountered start recursion from that point to accumulate all the stones
+    for(int i = 0; i < dimension * dimension; i++) {
+      // Start of a cluster has been found and the current intersection has not already been evaluated
+      if (position.getIntersection(i).stone != Stone.NONE && !containsArray(occupiedIntersections, calculateXY(i))) {
+        // Find the first neighbors from that point
+        Cluster cluster = new Cluster(position.getIntersection(i).stone);
+        cluster.intersectionList.add(calculateXY(i));
+        recursiveCluster(position, i, cluster, occupiedIntersections);
+        findBorder(position, cluster);
+        switch (cluster.stone) {
+          case BLACK -> blackClusters.add(cluster);
+          case WHITE -> whiteClusters.add(cluster);
+        }
+      }
+    }
+    clusterHashMap.put(Stone.BLACK, blackClusters);
+    clusterHashMap.put(Stone.WHITE, whiteClusters);
+    return clusterHashMap;
+  }
+
+  public void recursiveCluster(Position position, int index, Cluster cluster, List<int[]> occupiedIntersections) {
+    List<int[]> neighbors = findNeighborsDiagonal(findNeighborsStraight(calculateXY(index)), calculateXY(index));
+    if(neighbors != null) {
+      for (int[] neighbor : neighbors) {
+        if (position.getIntersection(calculateIndex(neighbor)).stone == position.getIntersection(
+            index).stone && !containsArray(cluster.intersectionList, neighbor)) {
+          cluster.intersectionList.add(neighbor);
+          occupiedIntersections.add(neighbor);
+          recursiveCluster(position, calculateIndex(neighbor), cluster, occupiedIntersections);
+        }
+      }
+    }
+  }
+
+  public void findBorder(Position position, Cluster cluster) {
+    for (int[] intersection : cluster.intersectionList) {
+      List<int[]> neighbors = findNeighborsDiagonal(findNeighborsStraight(intersection), intersection);
+      if (neighbors.size() > 1) {
+        for (int[] neighbor : neighbors) {
+          if(position.getIntersection(calculateIndex(neighbor)).stone != cluster.stone
+              && !containsArray(cluster.coordinatesBorder, intersection)) {
+            cluster.coordinatesBorder.add(intersection);
+            break;
           }
         }
       }
     }
-
-    // After finding the clusters find the territory they might encompass
-    List<Cluster> blackClusters = clusterHashMap.get(Stone.BLACK);
-    List<Cluster> whiteClusters = clusterHashMap.get(Stone.WHITE);
-
-    for (Cluster tmpCluster : blackClusters) {
-      if (clusterHasFreedom(position, tmpCluster)) {
-        tmpCluster.hasTerritory = clusterHasTerritory(position, tmpCluster);
-      }
-    }
-    for (Cluster tmpCluster : whiteClusters) {
-      if (clusterHasFreedom(position, tmpCluster)) {
-        tmpCluster.hasTerritory = clusterHasTerritory(position, tmpCluster);
-      }
-    }
-    return clusterHashMap;
   }
+
+//  /**
+//   * Find all the clusters of stones, cluster is any group of neighboring stones of the same color.
+//   * Replaced by recursiveCluster method
+//   * @param position of the board.
+//   * @return a HashMap of clusters
+//   */
+//  public HashMap<Stone, List<Cluster>> stoneClusters(Position position) {
+//    HashMap<Stone, List<Cluster>> clusterHashMap = new HashMap<>();
+//    for (int i = 0; i < dimension * dimension; i++) {
+//      int[] intersectionCoordinate = calculateXY(i);
+//      List<int[]> neighborsStraight = findNeighborsStraight(intersectionCoordinate);
+//      List<int[]> neighbors = findNeighborsDiagonal(neighborsStraight, intersectionCoordinate);
+//      boolean found = false;
+//      // Check if the current intersection is taken by one of the players
+//      if (position.getIntersection(i).stone != Stone.NONE) {
+//        if (clusterHashMap.isEmpty()) { // first cluster found
+//          Cluster cluster = new Cluster(position.getIntersection(i).stone);
+//          cluster.intersectionList.add(intersectionCoordinate);
+//          defineBorder(position, neighborsStraight, cluster, intersectionCoordinate);
+//          clusterHashMap.put(cluster.stone, List.of(cluster));
+//        } else {
+//          // check if the key is already in the HashMap
+//          if (clusterHashMap.containsKey(position.getIntersection(i).stone)) {
+//            // Check if the current intersection is connected to one of the existing clusters
+//            // and has same stone
+//            for (int[] neighbor : neighbors) {
+//              List<Cluster> clusters = clusterHashMap.get(position.getIntersection(i).stone);
+//              for (Cluster cluster : clusters) {
+//                for (int[] intersection : cluster.intersectionList) {
+//                  if (Arrays.equals(intersection, neighbor)
+//                      && position.getIntersection(i).stone == cluster.stone) {
+//                    cluster.intersectionList.add(intersectionCoordinate);
+//                    defineBorder(position, neighborsStraight, cluster, intersectionCoordinate);
+//                    found = true;
+//                    break;
+//                  }
+//                }
+//              }
+//              if (found) {
+//                break;
+//              }
+//            }
+//          }
+//          // All neighbors are part of a different cluster or no cluster, make a new cluster
+//          if (!found) {
+//            Cluster cluster = new Cluster(position.getIntersection(i).stone);
+//            cluster.intersectionList.add(intersectionCoordinate);
+//            defineBorder(position, neighborsStraight, cluster, intersectionCoordinate);
+//            List<Cluster> hashedClusters;
+//            List<Cluster> clusterList;
+//            if (clusterHashMap.get(cluster.stone) != null) {
+//              // Create a copy of the cluster list
+//              hashedClusters = clusterHashMap.get(cluster.stone);
+//              clusterList = new ArrayList<>(hashedClusters);
+//              clusterList.add(cluster);
+//            } else {
+//              clusterList = List.of(cluster);
+//            }
+//            clusterHashMap.put(cluster.stone, clusterList);
+//          }
+//        }
+//      }
+//    }
+//    return clusterHashMap;
+//  }
 
   /**
    * Define the border of cluster.
@@ -179,31 +246,65 @@ public class GoLogic {
     }
   }
 
-  private boolean clusterHasTerritory(Position position, Cluster cluster) {
-    boolean hasTerritory = false;
+  /**
+   * Find the territories occupied by the found clusters. (if any)
+   * @param clusterHashMap that contains the list of clusters for each of the color stones
+   * @param position of the board to search in.
+   */
+  public void clusterTerritory(HashMap<Stone, List<Cluster>> clusterHashMap, Position position) {
+    // Split the clusters based on the color.
+    List<Cluster> blackClusters = clusterHashMap.get(Stone.BLACK);
+    List<Cluster> whiteClusters = clusterHashMap.get(Stone.WHITE);
+    // For each of the clusters of a color find the territory if it exists.
+    if (blackClusters != null) {
+      for (Cluster tmpCluster : blackClusters) {
+        if (clusterHasFreedom(position, tmpCluster)) {
+          clusterHasTerritory(position, tmpCluster);
+        }
+      }
+    }
+    if (whiteClusters != null) {
+      for (Cluster tmpCluster : whiteClusters) {
+        if (clusterHasFreedom(position, tmpCluster)) {
+          clusterHasTerritory(position, tmpCluster);
+        }
+      }
+    }
+  }
+
+  /**
+   * Provided a cluster and a board position find the clusters that own a territory on the board.
+   * Store the size of the found territory in the cluster.
+   * @param position Current position
+   * @param cluster being checked.
+   */
+  private void clusterHasTerritory(Position position, Cluster cluster) {
+    List<int[]> territory = new ArrayList<>();
     // A territory or area is an open space from a border to either
     // the same stone or the edge of the board
     for (int i = 0; i < cluster.coordinatesBorder.size(); i++) {
       int freeUp = isFreeUp(cluster.coordinatesBorder.get(i), position);
       int freeLeft = isFreeLeft(cluster.coordinatesBorder.get(i), position);
-      int freeDown = isFreeUp(cluster.coordinatesBorder.get(i), position);
-      int freeRight = isFreeLeft(cluster.coordinatesBorder.get(i), position);
+      int freeDown = isFreeDown(cluster.coordinatesBorder.get(i), position);
+      int freeRight = isFreeRight(cluster.coordinatesBorder.get(i), position);
       if (freeUp > 0 && freeLeft > 0) {
-        hasTerritory = isTerritoryUpLeft(cluster.coordinatesBorder.get(i), position, cluster.stone);
+        isTerritoryUpLeft(cluster.coordinatesBorder.get(i), position, cluster.stone,
+            cluster.intersectionList, territory);
       }
       if (freeDown > 0 && freeLeft > 0) {
-        hasTerritory = isTerritoryDownLeft(cluster.coordinatesBorder.get(i), position,
-            cluster.stone);
+        isTerritoryDownLeft(cluster.coordinatesBorder.get(i), position, cluster.stone,
+            cluster.intersectionList, territory);
       }
       if (freeUp > 0 && freeRight > 0) {
-        hasTerritory = isTerritoryUpRight(cluster.coordinatesBorder.get(i), position,
-            cluster.stone);
+        isTerritoryUpRight(cluster.coordinatesBorder.get(i), position, cluster.stone,
+            cluster.intersectionList, territory);
       }
       if (freeDown > 0 && freeRight > 0) {
-        hasTerritory = isTerritoryDownRight(cluster.coordinatesBorder.get(i), position, cluster.stone);
+        isTerritoryDownRight(cluster.coordinatesBorder.get(i), position, cluster.stone,
+            cluster.intersectionList, territory);
       }
     }
-    return hasTerritory;
+    cluster.territoryList = territory;
   }
 
   private boolean clusterHasFreedom(Position position, Cluster cluster) {
@@ -413,27 +514,39 @@ public class GoLogic {
    * @param stone        being played
    * @return if the upper left quadrant starting from the intersection is part of the territory
    */
-  private boolean isTerritoryUpLeft(int[] intersection, Position position, Stone stone) {
+  private boolean isTerritoryUpLeft(int[] intersection, Position position, Stone stone,
+      List<int[]> clusterIntersections, List<int[]> territory) {
     Stone opponentStone = opponent(stone);
     Stone currentStone = position.getIntersection(
         position.convertXYtoIndex(intersection, dimension)).stone;
-    // if the recursion method finds the border of the board and the stone is not that of the
-    // opponent
-    // the square is part of the possible territory
-    // Recursive part, if the edge of the board is reached and the intersection is not occupied by
-    // the opponent than this is part of your
-    // potential territory.
-    if ((intersection[0] == 0 || intersection[0] == dimension - 1 || intersection[1] == 0
-        || intersection[1] == dimension - 1)
+
+    int[] neighborUp = new int[]{intersection[0], Math.max(intersection[1] - 1, 0)};
+    int[] neighborLeft = new int[]{Math.max(intersection[0] - 1, 0), intersection[1]};
+
+    // Last intersection on the board,
+    if ((intersection[0] == 0 && intersection[1] == 0) //Check the last corner bottom right not the opponent
         && (currentStone != opponentStone)) {
-      return true;
-    } else if (currentStone == opponentStone) {
+      if (currentStone == Stone.NONE && !containsArray(clusterIntersections, intersection)
+          &&  !containsArray(territory, intersection)) { // Check if the intersection is not part of the cluster (empty)
+        territory.add(intersection);
+        return true;
+      } else { return true; }   // the stone is part of the cluster and not its territory, however the territory still exists.
+    } else if (currentStone == opponentStone) { // Opponent encountered, this is not part of the territory, territory is abolished
+      territory.clear();
       return false;
-    } else {
-      int[] neighborUp = new int[]{intersection[0], Math.max(intersection[1] - 1, 0)};
-      int[] neighborLeft = new int[]{Math.max(intersection[0] - 1, 0), intersection[1]};
-      return isTerritoryUpLeft(neighborUp, position, stone) && isTerritoryUpLeft(neighborLeft,
-          position, stone);
+    } else if (intersection[0] == 0) { //Right edge of the board reached, go down
+      if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) {
+        territory.add(intersection);
+      }
+      return isTerritoryUpLeft(neighborUp, position, stone, clusterIntersections, territory);
+    } else if ((intersection[1] == 0)) { // Bottom edge of the board reached
+      if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+      return isTerritoryUpLeft(neighborLeft, position, stone, clusterIntersections, territory);
+    } else { // Somewhere on the board, give next two neighbors
+      if (!containsArray(territory, intersection)
+          && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+      return isTerritoryUpLeft(neighborUp, position, stone, clusterIntersections, territory)
+          && isTerritoryUpLeft(neighborLeft, position, stone, clusterIntersections, territory);
     }
   }
 
@@ -446,28 +559,39 @@ public class GoLogic {
    * @param stone        being played
    * @return if the upper left quadrant starting from the intersection is part of the territory
    */
-  private boolean isTerritoryUpRight(int[] intersection, Position position, Stone stone) {
+  private boolean isTerritoryUpRight(int[] intersection, Position position, Stone stone,
+      List<int[]> clusterIntersections, List<int[]> territory) {
     Stone opponentStone = opponent(stone);
     Stone currentStone = position.getIntersection(
         position.convertXYtoIndex(intersection, dimension)).stone;
-    // if the recursion method finds the border of the board
-    // and the stone is not that of the opponent
-    // the square is part of the possible territory
-    // Recursive part, if the edge of the board is reached and the intersection is not
-    // occupied by the opponent than this is part of your
-    // potential territory.
-    if ((intersection[0] == 0 || intersection[0] == dimension - 1 || intersection[1] == 0
-        || intersection[1] == dimension - 1)
+
+    int[] neighborUp = new int[]{intersection[0], Math.max(intersection[1] + 1, 0)};
+    int[] neighborRight = new int[]{Math.min(intersection[0] + 1, dimension -1), intersection[1]};
+
+    // Last intersection on the board,
+    if ((intersection[0] == dimension - 1 && intersection[1] == 0) //Check the last corner bottom right not the opponent
         && (currentStone != opponentStone)) {
-      return true;
-    } else if (currentStone == opponentStone) {
+      if (currentStone == Stone.NONE && !containsArray(clusterIntersections, intersection)
+          &&  !containsArray(territory, intersection)){ // Check if the intersection is not part of the cluster (empty)
+        territory.add(intersection);
+        return true;
+      } else { return true; }   // the stone is part of the cluster and not its territory, however the territory still exists.
+    } else if (currentStone == opponentStone) { // Opponent encountered, this is not part of the territory, territory is abolished
+      territory.clear();
       return false;
-    } else {
-      int[] neighborUp = new int[]{intersection[0], Math.max(intersection[1] - 1, 0)};
-      int[] neighborRight = new int[]{Math.min(intersection[0] + 1, dimension - 1),
-          intersection[1]};
-      return isTerritoryUpRight(neighborUp, position, stone) && isTerritoryUpRight(neighborRight,
-          position, stone);
+    } else if (intersection[0] == dimension - 1) { //Right edge of the board reached, go down
+      if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) {
+        territory.add(intersection);
+      }
+      return isTerritoryUpRight(neighborUp, position, stone, clusterIntersections, territory);
+    } else if ((intersection[1] == 0)) { // Bottom edge of the board reached
+      if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+      return isTerritoryUpRight(neighborRight, position, stone, clusterIntersections, territory);
+    } else { // Somewhere on the board, give next two neighbors
+      if (!containsArray(territory, intersection)
+          && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+      return isTerritoryUpRight(neighborUp, position, stone, clusterIntersections, territory)
+          && isTerritoryUpRight(neighborRight, position, stone, clusterIntersections, territory);
     }
   }
 
@@ -480,27 +604,39 @@ public class GoLogic {
    * @param stone        being played
    * @return if the upper left quadrant starting from the intersection is part of the territory
    */
-  private boolean isTerritoryDownLeft(int[] intersection, Position position, Stone stone) {
+  private boolean isTerritoryDownLeft(int[] intersection, Position position, Stone stone,
+      List<int[]> clusterIntersections, List<int[]> territory) {
     Stone opponentStone = opponent(stone);
     Stone currentStone = position.getIntersection(
         position.convertXYtoIndex(intersection, dimension)).stone;
-    // if the recursion method finds the border of the board and the stone is not that
-    // of the opponent
-    // the square is part of the possible territory
-    // Recursive part, if the edge of the board is reached and the intersection is not occupied by
-    // the opponent than this is part of your
-    // potential territory.
-    if ((intersection[0] == 0 || intersection[0] == dimension - 1 || intersection[1] == 0
-        || intersection[1] == dimension - 1)
+
+    int[] neighborDown = new int[]{intersection[0], Math.min(intersection[1] + 1, dimension -1)};
+    int[] neighborLeft = new int[]{Math.max(intersection[0] - 1, 0), intersection[1]};
+
+    // Last intersection on the board,
+    if ((intersection[0] == 0&& intersection[1] == dimension - 1) //Check the last corner bottom right not the opponent
         && (currentStone != opponentStone)) {
-      return true;
-    } else if (currentStone == opponentStone) {
+      if (currentStone == Stone.NONE && !containsArray(clusterIntersections, intersection)
+          &&  !containsArray(territory, intersection)){ // Check if the intersection is not part of the cluster (empty)
+        territory.add(intersection);
+        return true;
+      } else { return true; }   // the stone is part of the cluster and not its territory, however the territory still exists.
+    } else if (currentStone == opponentStone) { // Opponent encountered, this is not part of the territory, territory is abolished
+      territory.clear();
       return false;
-    } else {
-      int[] neighborDown = new int[]{intersection[0], Math.max(intersection[1] - 1, 0)};
-      int[] neighborLeft = new int[]{Math.max(intersection[0] - 1, 0), intersection[1]};
-      return isTerritoryDownLeft(neighborDown, position, stone) && isTerritoryDownLeft(
-          neighborLeft, position, stone);
+    } else if (intersection[0] == 0) { //Right edge of the board reached, go down
+      if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) {
+        territory.add(intersection);
+      }
+      return isTerritoryDownLeft(neighborDown, position, stone, clusterIntersections, territory);
+    } else if ((intersection[1] == dimension - 1)) { // Bottom edge of the board reached
+      if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+      return isTerritoryDownLeft(neighborLeft, position, stone, clusterIntersections, territory);
+    } else { // Somewhere on the board, give next two neighbors
+      if (!containsArray(territory, intersection)
+          && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+      return isTerritoryDownLeft(neighborDown, position, stone, clusterIntersections, territory)
+          && isTerritoryDownLeft(neighborLeft, position, stone, clusterIntersections, territory);
     }
   }
 
@@ -513,38 +649,51 @@ public class GoLogic {
    * @param stone        being played
    * @return if the upper left quadrant starting from the intersection is part of the territory
    */
-  private boolean isTerritoryDownRight(int[] intersection, Position position, Stone stone) {
+  private boolean isTerritoryDownRight(int[] intersection, Position position, Stone stone,
+      List<int[]> clusterIntersections, List<int[]> territory) {
     Stone opponentStone = opponent(stone);
     Stone currentStone = position.getIntersection(
         position.convertXYtoIndex(intersection, dimension)).stone;
-    // if the recursion method finds the border of the board and the stone is not that of the
-    // opponent
-    // the square is part of the possible territory
-    // Recursive part, if the edge of the board is reached and the intersection is not occupied by the opponent than this is part of your
-    // potential territory.
-    if ((intersection[0] == 0 || intersection[0] == dimension - 1 || intersection[1] == 0
-        || intersection[1] == dimension - 1)
+
+    int[] neighborDown = new int[]{intersection[0], Math.min(intersection[1] + 1, dimension -1)};
+    int[] neighborRight = new int[]{Math.min(intersection[0] + 1, dimension -1), intersection[1]};
+
+    // Last intersection on the board,
+    if ((intersection[0] == dimension - 1 && intersection[1] == dimension - 1) //Check the last corner bottom right not the opponent
         && (currentStone != opponentStone)) {
-      return true;
-    } else if (currentStone == opponentStone) {
-      return false;
-    } else {
-      int[] neighborDown = new int[]{intersection[0], Math.max(intersection[1] + 1, 0)};
-      int[] neighborRight = new int[]{Math.max(intersection[0] + 1, 0), intersection[1]};
-      return isTerritoryDownRight(neighborDown, position, stone) && isTerritoryDownRight(
-          neighborRight, position, stone);
+      if (currentStone == Stone.NONE && !containsArray(clusterIntersections, intersection)
+          &&  !containsArray(territory, intersection)) { // Check if the intersection is not part of the cluster (empty)
+        territory.add(intersection);
+        return true;
+      } else { return true; }   // the stone is part of the cluster and not its territory, however the territory still exists.
+    } else if (currentStone == opponentStone) { // Opponent encountered, this is not part of the territory, territory is abolished
+        territory.clear();
+        return false;
+    } else if (intersection[0] == dimension - 1) { //Right edge of the board reached, go down
+        if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) {
+          territory.add(intersection);
+        }
+        return isTerritoryDownRight(neighborDown, position, stone, clusterIntersections, territory);
+    } else if ((intersection[1] == dimension - 1)) { // Bottom edge of the board reached
+        if (!containsArray(territory, intersection) && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+        return isTerritoryDownRight(neighborRight, position, stone, clusterIntersections, territory);
+    } else { // Somewhere on the board, give next two neighbors
+        if (!containsArray(territory, intersection)
+            && !containsArray(clusterIntersections, intersection)) { territory.add(intersection); }
+        return isTerritoryDownRight(neighborDown, position, stone, clusterIntersections, territory)
+            && isTerritoryDownRight(neighborRight, position, stone, clusterIntersections, territory);
     }
   }
 
   /**
    * Method that checks if a target array is already in a list of arrays.
    *
-   * @param neighbors already found
+   * @param arrayList already found
    * @param target    being checked
    * @return if the target is already in the list or not.
    */
-  private boolean containsArray(List<int[]> neighbors, int[] target) {
-    for (int[] neighbor : neighbors) {
+  private boolean containsArray(List<int[]> arrayList, int[] target) {
+    for (int[] neighbor : arrayList) {
       if (Arrays.equals(neighbor, target)) {
         return true;
       }
