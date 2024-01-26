@@ -30,3 +30,5 @@ replay_pid*
 # Prevent build folder from being tracked in git, target is created every time the project is run
 /target
 /javafx-sdk-21.0.2
+
+Report.odt
