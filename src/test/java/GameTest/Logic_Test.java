@@ -30,11 +30,11 @@ public class Logic_Test {
     logic = new GoLogic();
     players.add(player1);
     players.add(player2);
-    goGame = new GoGame(dimension, players);
   }
 
   @Test
   void testClusters() {
+    goGame = new GoGame(dimension, players);
     dimension = 9;
     logic.dimension = dimension;
     Position newPosition = new Position(dimension);
@@ -56,10 +56,11 @@ public class Logic_Test {
 
     goGame.setPosition(newPosition);
     System.out.println(goGame.getStateString());
-    HashMap<Stone, List<Cluster>> clustersHashMap = logic.stoneClusters(goGame.getStatePosition());
+   // HashMap<Stone, List<Cluster>> clustersHashMap = logic.stoneClusters(goGame.getStatePosition());
+    HashMap<Stone, List<Cluster>> clusterHashMap2 = logic.findClusters(goGame.getStatePosition());
 
-    List<Cluster> blackClusters = clustersHashMap.get(Stone.BLACK);
-    List<Cluster> whiteClusters = clustersHashMap.get(Stone.WHITE);
+    List<Cluster> blackClusters = clusterHashMap2.get(Stone.BLACK);
+    List<Cluster> whiteClusters = clusterHashMap2.get(Stone.WHITE);
 
     // Check that all clusters are found, and have the correct size
     // check that the borders of each cluster are found correctly
@@ -81,7 +82,36 @@ public class Logic_Test {
 
   @Test
   void testScoring() {
+    goGame = new GoGame(dimension, players);
+    dimension = 9;
+    logic.dimension = dimension;
     Position newPosition = new Position(dimension);
+    newPosition.setIntersection(0, Stone.BLACK);
+    newPosition.score = logic.score(newPosition);
+    assertEquals(80, newPosition.score.scoreBlack);
+
+    newPosition.setIntersection(1, Stone.BLACK);
+    newPosition.setIntersection(2, Stone.BLACK);
+    newPosition.setIntersection(11, Stone.BLACK);
+    newPosition.setIntersection(20, Stone.BLACK);
+    newPosition.setIntersection(29, Stone.BLACK);
+    newPosition.setIntersection(38, Stone.BLACK);
+    newPosition.setIntersection(37, Stone.BLACK);
+    newPosition.setIntersection(36, Stone.BLACK);
+
+    newPosition.setIntersection(5, Stone.WHITE);
+    newPosition.setIntersection(14, Stone.WHITE);
+    newPosition.setIntersection(23, Stone.WHITE);
+    newPosition.setIntersection(32, Stone.WHITE);
+    newPosition.setIntersection(41, Stone.WHITE);
+    newPosition.setIntersection(50, Stone.WHITE);
+    newPosition.setIntersection(51, Stone.WHITE);
+    newPosition.setIntersection(52, Stone.WHITE);
+    newPosition.setIntersection(53, Stone.WHITE);
+
+    newPosition.score = logic.score(newPosition);
+    assertEquals(6, newPosition.score.scoreBlack);
+    assertEquals(15, newPosition.score.scoreWhite);
 
   }
 }
