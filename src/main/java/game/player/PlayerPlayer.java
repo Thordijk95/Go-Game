@@ -15,6 +15,7 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
     this.username = username;
   }
 
+  @Override
   public void setPlayerConnection(InetAddress inetAddress, int port) throws IOException {
     try {
       playerConnection = new PlayerConnection(InetAddress.getLocalHost(), port);
