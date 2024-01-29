@@ -1,12 +1,11 @@
-package GameTest;
+package gametest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import Connectivity.Server.ConnectionHandler;
-import Game.GoGame;
-import Game.Game;
-import Game.*;
-import com.nedap.go.Go;
+import connectivity.server.ConnectionHandler;
+import game.GoGame;
+import game.Game;
+import game.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,11 +60,13 @@ public class Logic_Test {
 
     List<Cluster> blackClusters = clusterHashMap2.get(Stone.BLACK);
     List<Cluster> whiteClusters = clusterHashMap2.get(Stone.WHITE);
+    List<Cluster> noneClusters = clusterHashMap2.get(Stone.NONE);
 
     // Check that all clusters are found, and have the correct size
     // check that the borders of each cluster are found correctly
     assertEquals(2, blackClusters.size());
     assertEquals(2, whiteClusters.size());
+    assertEquals(2, noneClusters.size());
 
     assertEquals(dimension, blackClusters.getFirst().coordinatesBorder.size());
     assertEquals(dimension, blackClusters.getFirst().coordinatesBorder.size());
@@ -113,5 +114,28 @@ public class Logic_Test {
     assertEquals(6, newPosition.score.scoreBlack);
     assertEquals(15, newPosition.score.scoreWhite);
 
+    Position position2 = new Position(dimension);
+    position2.setIntersection(45, Stone.BLACK);
+    position2.setIntersection(46, Stone.BLACK);
+    position2.setIntersection(47, Stone.BLACK);
+    position2.setIntersection(56, Stone.BLACK);
+    position2.setIntersection(57, Stone.BLACK);
+    position2.setIntersection(58, Stone.BLACK);
+    position2.setIntersection(65, Stone.BLACK);
+    position2.setIntersection(67, Stone.BLACK);
+    position2.setIntersection(74, Stone.BLACK);
+    position2.setIntersection(76, Stone.BLACK);
+
+    position2.setIntersection(1, Stone.WHITE);
+    position2.setIntersection(5, Stone.WHITE);
+    position2.setIntersection(10, Stone.WHITE);
+    position2.setIntersection(12, Stone.WHITE);
+    position2.setIntersection(13, Stone.WHITE);
+    position2.setIntersection(14, Stone.WHITE);
+    position2.setIntersection(20, Stone.WHITE);
+    position2.setIntersection(21, Stone.WHITE);
+    position2.score = logic.score(position2);
+    assertEquals(8, position2.score.scoreBlack);
+    assertEquals(4, position2.score.scoreWhite);
   }
 }

@@ -1,10 +1,9 @@
-package Game;
+package game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import javafx.geometry.Pos;
 
 public class GoLogic {
 
@@ -19,8 +18,7 @@ public class GoLogic {
   public Score score(Position position) {
     int scoreBlack = 0;
     int scoreWhite = 0;
-    HashMap<Stone, List<Cluster>> stoneClusterHashMap = findClusters(position);;
-    clusterTerritory(stoneClusterHashMap, position);
+    HashMap<Stone, List<Cluster>> stoneClusterHashMap = findClusters(position);
     if (stoneClusterHashMap.get(Stone.BLACK) != null) {
       for (Cluster cluster : stoneClusterHashMap.get(Stone.BLACK)) {
         scoreBlack += cluster.territoryList.size();
@@ -103,31 +101,46 @@ public class GoLogic {
     HashMap<Stone, List<Cluster>> clusterHashMap = new HashMap<>();
     List<Cluster> blackClusters = new ArrayList<>();
     List<Cluster> whiteClusters = new ArrayList<>();
+    List<Cluster> noneClusters = new ArrayList<>();
     List<int[]> occupiedIntersections = new ArrayList<>();
 
     // Parse all the fields in the position
     // When stone is encountered start recursion from that point to accumulate all the stones
     for(int i = 0; i < dimension * dimension; i++) {
       // Start of a cluster has been found and the current intersection has not already been evaluated
-      if (position.getIntersection(i).stone != Stone.NONE && !containsArray(occupiedIntersections, calculateXY(i))) {
+      //if (position.getIntersection(i).stone != Stone.NONE && !containsArray(occupiedIntersections, calculateXY(i))) {
+      if (!containsArray(occupiedIntersections, calculateXY(i))) {
         // Find the first neighbors from that point
         Cluster cluster = new Cluster(position.getIntersection(i).stone);
         cluster.intersectionList.add(calculateXY(i));
         recursiveCluster(position, i, cluster, occupiedIntersections);
         findBorder(position, cluster);
+        List<int[]> checkedIntersections = new ArrayList<>();
         switch (cluster.stone) {
           case BLACK -> blackClusters.add(cluster);
           case WHITE -> whiteClusters.add(cluster);
+          case NONE -> noneClusters.add(cluster);
         }
       }
     }
     clusterHashMap.put(Stone.BLACK, blackClusters);
     clusterHashMap.put(Stone.WHITE, whiteClusters);
+    clusterHashMap.put(Stone.NONE, noneClusters);
     return clusterHashMap;
   }
 
   public void recursiveCluster(Position position, int index, Cluster cluster, List<int[]> occupiedIntersections) {
-    List<int[]> neighbors = findNeighborsDiagonal(findNeighborsStraight(calculateXY(index)), calculateXY(index));
+    List<int[]> neighbors = findAllNeighborsStraight(calculateXY(index));
+    int count = 0;
+    for (int[] neighbor : neighbors) {
+      if (position.getIntersection(calculateIndex(neighbor)).stone == Stone.NONE) {
+        count += 1;
+      }
+    }
+    if (count >= 3) {
+      neighbors = findAllNeighborsDiagonal(neighbors, calculateXY(index));
+    }
+    //
     if(neighbors != null) {
       for (int[] neighbor : neighbors) {
         if (position.getIntersection(calculateIndex(neighbor)).stone == position.getIntersection(
@@ -142,7 +155,7 @@ public class GoLogic {
 
   public void findBorder(Position position, Cluster cluster) {
     for (int[] intersection : cluster.intersectionList) {
-      List<int[]> neighbors = findNeighborsDiagonal(findNeighborsStraight(intersection), intersection);
+      List<int[]> neighbors = findAllNeighborsDiagonal(findAllNeighborsStraight(intersection), intersection);
       if (neighbors.size() > 1) {
         for (int[] neighbor : neighbors) {
           if(position.getIntersection(calculateIndex(neighbor)).stone != cluster.stone
@@ -151,8 +164,23 @@ public class GoLogic {
             break;
           }
         }
+      } else {
+        System.out.println("sanity check, should never occur");
       }
     }
+  }
+
+  public void findTerritory(Position position, int index, Cluster cluster, List<int[]> territory, List<int[]> checkedIntersections) {
+    Stone opponent = opponent(cluster.stone);
+    List<int[]> neighbors = findAllNeighborsDiagonal((findAllNeighborsStraight(calculateXY(index))), calculateXY(index));
+    // For all the neighbors of the current intersection
+    for (int[] neighbor : neighbors) {
+      // If the any of the neighbors is an opponents than this is not part of the territory
+      if (position.getIntersection(calculateIndex(neighbor)).stone == opponent) {
+        cluster.territoryList.clear();
+      }
+    }
+
   }
 
 //  /**
@@ -287,19 +315,19 @@ public class GoLogic {
       int freeLeft = isFreeLeft(cluster.coordinatesBorder.get(i), position);
       int freeDown = isFreeDown(cluster.coordinatesBorder.get(i), position);
       int freeRight = isFreeRight(cluster.coordinatesBorder.get(i), position);
-      if (freeUp > 0 && freeLeft > 0) {
+      if (freeUp > 0 || freeLeft > 0) {
         isTerritoryUpLeft(cluster.coordinatesBorder.get(i), position, cluster.stone,
             cluster.intersectionList, territory);
       }
-      if (freeDown > 0 && freeLeft > 0) {
+      if (freeDown > 0 || freeLeft > 0) {
         isTerritoryDownLeft(cluster.coordinatesBorder.get(i), position, cluster.stone,
             cluster.intersectionList, territory);
       }
-      if (freeUp > 0 && freeRight > 0) {
+      if (freeUp > 0 || freeRight > 0) {
         isTerritoryUpRight(cluster.coordinatesBorder.get(i), position, cluster.stone,
             cluster.intersectionList, territory);
       }
-      if (freeDown > 0 && freeRight > 0) {
+      if (freeDown > 0 || freeRight > 0) {
         isTerritoryDownRight(cluster.coordinatesBorder.get(i), position, cluster.stone,
             cluster.intersectionList, territory);
       }
@@ -325,6 +353,8 @@ public class GoLogic {
     return cluster.hasFreedom;
   }
 
+
+
   /**
    * Find all neighboring intersections, if at the edge of the board there is no neighbor. Neighbors
    * are all that neighbor the same 4 squares as the current intersection
@@ -332,7 +362,7 @@ public class GoLogic {
    * @param coordinate of the intersection fo which the neighbors are needed
    * @return the neighbors
    */
-  public List<int[]> findNeighborsStraight(int[] coordinate) {
+  public List<int[]> findAllNeighborsStraight(int[] coordinate) {
 
     List<int[]> neighbors = new ArrayList<>();
 
@@ -358,7 +388,7 @@ public class GoLogic {
     return neighbors;
   }
 
-  public List<int[]> findNeighborsDiagonal(List<int[]> neighbors, int[] coordinate) {
+  public List<int[]> findAllNeighborsDiagonal(List<int[]> neighbors, int[] coordinate) {
 
     List<int[]> neighborsDiagonal = new ArrayList<>();
 
