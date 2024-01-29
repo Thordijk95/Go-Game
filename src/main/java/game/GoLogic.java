@@ -154,17 +154,22 @@ public class GoLogic {
    * @param occupiedIntersections that are already part of a different cluster.
    */
   public void recursiveCluster(Position position, int index, Cluster cluster, List<int[]> occupiedIntersections) {
-    List<int[]> neighbors = findAllNeighborsStraight(calculateXY(index));
-    int count = 0;
-    for (int[] neighbor : neighbors) {
-      if (position.getIntersection(calculateIndex(neighbor)).stone == Stone.NONE) {
-        count += 1;
+    List<int[]> neighbors = new ArrayList<>();
+    if (cluster.stone == Stone.NONE) {
+      neighbors = findAllNeighborsStraight(calculateXY(index));
+      int count = 0;
+      for (int[] neighbor : neighbors) {
+        if (position.getIntersection(calculateIndex(neighbor)).stone == Stone.NONE) {
+          count += 1;
+        }
       }
+      if (count >= 3) {
+        neighbors = findAllNeighborsDiagonal(neighbors, calculateXY(index));
+      }
+    } else {
+      neighbors = findAllNeighborsDiagonal(findAllNeighborsStraight(calculateXY(index)), calculateXY(index));
     }
-    if (count >= 3) {
-      neighbors = findAllNeighborsDiagonal(neighbors, calculateXY(index));
-    }
-    //
+
     if(neighbors != null) {
       for (int[] neighbor : neighbors) {
         if (position.getIntersection(calculateIndex(neighbor)).stone == position.getIntersection(
@@ -222,13 +227,19 @@ public class GoLogic {
    * @param noneCluster to assign as a territory
    */
   public void assignNoneCluster(List<Cluster> clusters, Cluster noneCluster) {
+    boolean found = false;
     for (Cluster colorCluster : clusters) {
-      List<int[]> neighbors = findAllNeighborsStraight(noneCluster.intersectionList.getFirst());
-      for (int[] neighbor : neighbors) {
-        if (containsArray(colorCluster.coordinatesBorder, neighbor)) {
-          colorCluster.territoryList.addAll(noneCluster.intersectionList);
-          break;
+      // Look through all the intersection in the noneCluster to find the neighboring cluster that it is a territory of.
+      for (int i = 0; i < noneCluster.intersectionList.size(); i++) {
+        List<int[]> neighbors = findAllNeighborsStraight(noneCluster.intersectionList.get(i));
+        for (int[] neighbor : neighbors) {
+          if (containsArray(colorCluster.coordinatesBorder, neighbor)) {
+            colorCluster.territoryList.addAll(noneCluster.intersectionList);
+            found = true;
+            break;
+          }
         }
+        if (found) break;
       }
     }
 
