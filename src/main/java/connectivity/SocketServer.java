@@ -1,6 +1,7 @@
 package connectivity;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -16,6 +17,15 @@ public abstract class SocketServer {
    */
   protected SocketServer(int port) throws IOException {
     serverSocket = new ServerSocket(port);
+  }
+  /**
+   * Creates a new Server that listens for connections on the given port.
+   * Use port 0 to let the system pick a free port.
+   * @param port the port on which this server listens for connections
+   * @throws IOException if an I/O error occurs when opening the socket
+   */
+  protected SocketServer(int port, InetAddress bindAddr) throws IOException {
+    serverSocket = new ServerSocket(port, 100, bindAddr);
   }
 
   /**
