@@ -1,4 +1,4 @@
-# Go Game
+# Go game
 Starting point for the Go game
 
 * Usage of Java 21 is required
