@@ -12,7 +12,8 @@ public class GoGame implements Game{
   private ConnectionHandler turn;
   private GoLogic logic = new GoLogic();
   public Board board;
-  public HashMap<Stone, ConnectionHandler> players;
+  public int consecutivePasses;
+  public List<ConnectionHandler> players;
   // List of old positions
   private List<Position> previousPositions = new ArrayList<>();
   // Hashmap that links the ith positions to the score
@@ -24,11 +25,12 @@ public class GoGame implements Game{
    */
   public GoGame(int dimension, List<ConnectionHandler> queuedPlayers){
     board = new Board(dimension);
-    players = new HashMap<>();
-    players.put(Stone.BLACK, queuedPlayers.get(0));
-    players.put(Stone.WHITE, queuedPlayers.get(1));
-    turn = players.get(Stone.BLACK);
+    players = queuedPlayers;
+    players.getFirst().stone = Stone.BLACK;
+    players.getLast().stone = Stone.WHITE;
+    turn = players.getFirst();
     logic.dimension = dimension;
+    consecutivePasses = 0;
   }
 
   /**
@@ -65,17 +67,15 @@ public class GoGame implements Game{
     } else { // validate the move based on the logic of the game go
       return logic.validMove(previousPositions, board.currentPosition, move);
     }
-
   }
 
-
   @Override
-  public HashMap<Stone, ConnectionHandler> getPLayers() {
+  public List<ConnectionHandler> getPLayers() {
     return players;
   }
   @Override
   public void switchTurn() {
-    turn = (players.get(Stone.BLACK) == turn) ? players.get(Stone.WHITE) : players.get(Stone.BLACK);
+    turn = getOtherPlayer(turn);
   }
 
   /**
@@ -96,4 +96,33 @@ public class GoGame implements Game{
     board.currentPosition = position;
   }
 
+
+  /**
+   * This method is called when a pass is received from a player.
+   * @param player
+   */
+  @Override
+  public void pass(ConnectionHandler player) {
+    consecutivePasses += 1;
+    if (consecutivePasses == 2) {
+      gameOverScore();
+    }
+  }
+
+  @Override
+  public void gameOverScore() {
+
+  }
+
+  @Override
+  public void gameOverResign(ConnectionHandler player) {
+
+  }
+
+  @Override
+  public ConnectionHandler getOtherPlayer(ConnectionHandler player) {
+    if (players.getFirst() == player) {
+      return players.getLast();
+    } else { return players.getFirst(); }
+  }
 }

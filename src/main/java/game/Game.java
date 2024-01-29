@@ -14,9 +14,19 @@ public interface Game{
 
   void updateState(Move move);
 
-  HashMap<Stone, ConnectionHandler> getPLayers();
+  List<ConnectionHandler> getPLayers();
+  ConnectionHandler getOtherPlayer(ConnectionHandler player);
   void switchTurn();
 
   void setPosition(Position position);
+
+  void pass(ConnectionHandler player);
+
+  /**
+   * Game over is called when two consecutive passes are played, or when a player Resigns.
+   */
+  void gameOverScore();
+  void gameOverResign(ConnectionHandler player);
+
 
 }
