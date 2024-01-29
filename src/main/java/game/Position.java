@@ -36,16 +36,6 @@ public class Position {
     }
   }
 
-  /**
-   * Convert a given coordinate back to an index.
-   * @param intersection targeted
-   * @param dimension of the board
-   * @return the index of the intersection
-   */
-  public int convertXYtoIndex(int[] intersection, int dimension) {
-    return intersection[1] * dimension + intersection[0];
-  }
-
   public Intersection getIntersection(int index) {
     return intersectionList.get(index);
   }
