@@ -111,6 +111,7 @@ public class Logic_Test {
     newPosition.setIntersection(53, Stone.WHITE);
 
     newPosition.score = logic.score(newPosition);
+    System.out.println(newPosition.toString());
     assertEquals(6, newPosition.score.scoreBlack);
     assertEquals(15, newPosition.score.scoreWhite);
 
@@ -135,7 +136,83 @@ public class Logic_Test {
     position2.setIntersection(20, Stone.WHITE);
     position2.setIntersection(21, Stone.WHITE);
     position2.score = logic.score(position2);
+    System.out.println(position2.toString());
     assertEquals(8, position2.score.scoreBlack);
     assertEquals(4, position2.score.scoreWhite);
+
+
+    Position position3 = new Position(dimension);
+    position3.setIntersection(36, Stone.BLACK);
+    position3.setIntersection(45, Stone.BLACK);
+    position3.setIntersection(54, Stone.BLACK);
+    position3.setIntersection(64, Stone.BLACK);
+    position3.setIntersection(65, Stone.BLACK);
+    position3.setIntersection(66, Stone.BLACK);
+    position3.setIntersection(67, Stone.BLACK);
+    position3.setIntersection(68, Stone.BLACK);
+    position3.setIntersection(69, Stone.BLACK);
+    position3.setIntersection(70, Stone.BLACK);
+    position3.setIntersection(62, Stone.BLACK);
+    position3.setIntersection(53, Stone.BLACK);
+    position3.setIntersection(43, Stone.BLACK);
+    position3.setIntersection(34, Stone.BLACK);
+    position3.setIntersection(25, Stone.BLACK);
+    position3.setIntersection(15, Stone.BLACK);
+    position3.setIntersection(14, Stone.BLACK);
+    position3.setIntersection(13, Stone.BLACK);
+    position3.setIntersection(12, Stone.BLACK);
+    position3.setIntersection(11, Stone.BLACK);
+    position3.setIntersection(19, Stone.BLACK);
+    position3.setIntersection(28, Stone.BLACK);
+
+    position3.setIntersection(20, Stone.WHITE);
+    position3.setIntersection(21, Stone.WHITE);
+    position3.setIntersection(22, Stone.WHITE);
+    position3.setIntersection(23, Stone.WHITE);
+    position3.setIntersection(24, Stone.WHITE);
+    position3.setIntersection(33, Stone.WHITE);
+    position3.setIntersection(42, Stone.WHITE);
+    position3.setIntersection(51, Stone.WHITE);
+    position3.setIntersection(60, Stone.WHITE);
+    position3.setIntersection(59, Stone.WHITE);
+    position3.setIntersection(58, Stone.WHITE);
+    position3.setIntersection(57, Stone.WHITE);
+    position3.setIntersection(56, Stone.WHITE);
+    position3.setIntersection(47, Stone.WHITE);
+    position3.setIntersection(38, Stone.WHITE);
+    position3.setIntersection(29, Stone.WHITE);
+
+    position3.score = logic.score(position3);
+    System.out.println(position3.toString());
+    assertEquals(29, position3.score.scoreBlack);
+    assertEquals(9, position3.score.scoreWhite);
+
+    Position position4 = new Position(dimension);
+    position4.setIntersection(9, Stone.BLACK);
+    position4.setIntersection(10, Stone.BLACK);
+    position4.setIntersection(11, Stone.BLACK);
+    position4.setIntersection(21, Stone.BLACK);
+    position4.setIntersection(31, Stone.BLACK);
+    position4.setIntersection(32, Stone.BLACK);
+    position4.setIntersection(41, Stone.BLACK);
+    position4.setIntersection(51, Stone.BLACK);
+    position4.setIntersection(60, Stone.BLACK);
+    position4.setIntersection(69, Stone.BLACK);
+    position4.setIntersection(78, Stone.BLACK);
+    position4.setIntersection(24, Stone.BLACK);
+    position4.setIntersection(16, Stone.BLACK);
+    position4.setIntersection(8, Stone.BLACK);
+
+    position4.setIntersection(45, Stone.WHITE);
+    position4.setIntersection(46, Stone.WHITE);
+    position4.setIntersection(47, Stone.WHITE);
+    position4.setIntersection(56, Stone.WHITE);
+    position4.setIntersection(66, Stone.WHITE);
+    position4.setIntersection(76, Stone.WHITE);
+
+    position4.score = logic.score(position4);
+    System.out.println(position4.toString());
+    assertEquals(31, position4.score.scoreBlack);
+    assertEquals(9, position4.score.scoreWhite);
   }
 }
