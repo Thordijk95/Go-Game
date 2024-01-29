@@ -4,6 +4,7 @@ import connectivity.SocketServer;
 import game.*;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +22,16 @@ public class GoServer extends SocketServer {
    * @param port the port on which this server listens for connections
    * @throws IOException if an I/O error occurs when opening the socket
    */
-  protected GoServer(int port) throws IOException {
+  public GoServer(int port) throws IOException {
     super(port);
+    queue = new ArrayList<>();
+    connectionHandlerList = new ArrayList<>();
+    games = new ArrayList<>();
+    acceptConnections();
+  }
+
+  public GoServer(InetAddress inetAddres, int port) throws IOException {
+    super(port, inetAddres);
     queue = new ArrayList<>();
     connectionHandlerList = new ArrayList<>();
     games = new ArrayList<>();
@@ -69,14 +78,13 @@ public class GoServer extends SocketServer {
    * @param player to add
    * @return if the process was successful.
    */
-  protected synchronized boolean addToQueue(ConnectionHandler player) {
+  protected synchronized void addToQueue(ConnectionHandler player) {
     if (connectionHandlerList.contains(player)) {
       queue.add(player);
       if (queue.size() == 2) {
         startGame();
       }
-      return true;
-    } else { return false; }
+    }
   }
 
   protected void addPlayer(ConnectionHandler player) {
@@ -99,14 +107,37 @@ public class GoServer extends SocketServer {
 
   protected void receiveMove(Move move, ConnectionHandler player) {
     // Get the game that the player is taking part in.
-    Game currentGame;
     for (Game game : games) {
-      if (game.getPLayers().containsValue(player)) {
-        currentGame = game;
-        if (currentGame.validateMove(move, player)) {
-          currentGame.updateState(move);
+      if (game.getPLayers().contains(player)) {
+        List<ConnectionHandler> players = game.getPLayers();
+        if (game.validateMove(move, player)) {
+          game.updateState(move);
+
         }
       }
+    }
+  }
+
+  /**
+   * A pass is received from one of the players. Check what game they are a part of and process the
+   * pass.
+   * @param player that played a pass.
+   */
+  protected void receivePass(ConnectionHandler player) {
+    for (Game game : games) {
+      if(game.getPLayers().contains(player)) {
+        game.pass(player);
+      }
+    }
+  }
+
+  /**
+   * Player resigned, they loose regardless of the score.
+   * @param player that resigned.
+   */
+  protected void receiveResign(ConnectionHandler player) {
+    for (Game game : games) {
+      game.gameOverResign(player);
     }
   }
 }
