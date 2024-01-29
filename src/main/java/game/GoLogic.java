@@ -19,6 +19,19 @@ public class GoLogic {
     int scoreBlack = 0;
     int scoreWhite = 0;
     HashMap<Stone, List<Cluster>> stoneClusterHashMap = findClusters(position);
+    // For all clusters of None,  find what colors are on the border, if 1 color assign the score to that color.
+    if(stoneClusterHashMap.get(Stone.NONE) != null) {
+      for (Cluster cluster : stoneClusterHashMap.get(Stone.NONE)) {
+        findBorderNoneClusters(position, cluster);
+        // If only one color is found a the border of the none-cluster find cluster it is a territory of.
+        if (cluster.borderStones.size() == 1) {
+          switch (cluster.borderStones.getFirst()) {
+            case BLACK -> assignNoneCluster(position, stoneClusterHashMap.get(Stone.BLACK), cluster);
+            case WHITE -> assignNoneCluster(position, stoneClusterHashMap.get(Stone.WHITE), cluster);
+          }
+        }
+      }
+    }
     if (stoneClusterHashMap.get(Stone.BLACK) != null) {
       for (Cluster cluster : stoneClusterHashMap.get(Stone.BLACK)) {
         scoreBlack += cluster.territoryList.size();
@@ -170,6 +183,31 @@ public class GoLogic {
     }
   }
 
+  public void findBorderNoneClusters(Position position, Cluster cluster) {
+      for (int[] intersection : cluster.coordinatesBorder) {
+        List<int[]> neighbors = findAllNeighborsStraight(intersection);
+        for (int[] neighbor : neighbors) {
+          if (!cluster.borderStones.contains(position.getIntersection(calculateIndex(neighbor)).stone)
+              && position.getIntersection(calculateIndex(neighbor)).stone != Stone.NONE) {
+            cluster.borderStones.add(position.getIntersection(calculateIndex(neighbor)).stone);
+          }
+        }
+
+      }
+  }
+
+  public void assignNoneCluster(Position position, List<Cluster> clusters, Cluster cluster) {
+    for (Cluster colorCluster : clusters) {
+      List<int[]> neighbors = findAllNeighborsStraight(cluster.intersectionList.getFirst());
+      for (int[] neighbor : neighbors) {
+        if (containsArray(colorCluster.coordinatesBorder, neighbor)) {
+          colorCluster.territoryList.addAll(cluster.intersectionList);
+          break;
+        }
+      }
+    }
+
+  }
   public void findTerritory(Position position, int index, Cluster cluster, List<int[]> territory, List<int[]> checkedIntersections) {
     Stone opponent = opponent(cluster.stone);
     List<int[]> neighbors = findAllNeighborsDiagonal((findAllNeighborsStraight(calculateXY(index))), calculateXY(index));

@@ -9,11 +9,14 @@ public class Cluster {
   public List<int[]> coordinatesBorder;
   public List<int[]> territoryList;
 
+
+  public List<Stone> borderStones;
   public boolean hasFreedom;
   public Cluster(Stone stone) {
     this.stone = stone;
     intersectionList = new ArrayList<>();
     coordinatesBorder = new ArrayList<>();
     territoryList = new ArrayList<>();
+    borderStones = new ArrayList<>();
   }
 }
