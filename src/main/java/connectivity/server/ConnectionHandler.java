@@ -1,10 +1,14 @@
 package connectivity.server;
 
+import connectivity.protocol.GoProtocol;
 import game.Move;
+import game.Stone;
 
 public class ConnectionHandler {
   public ServerConnection serverConnection;
   public GoServer goServer;
+  public Stone stone;
+
   public ConnectionHandler() {}
 
   public void receiveQueueRequest() {
@@ -25,11 +29,17 @@ public class ConnectionHandler {
 
   public void receiveMove(Move move) {
     goServer.receiveMove(move, this);
-
   }
 
-  public void sendMove(String move) {
-    serverConnection.sendMove(move);
+  public void receivePass() {
+    goServer.receivePass(this);
+  }
+
+  public void receiveResign() {
+    goServer.receiveResign(this);
+  }
+  public void sendMove(String move, Stone stone) {
+    serverConnection.sendMove(GoProtocol.MOVE, move, stone);
   }
 
 }
