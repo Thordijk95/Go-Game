@@ -3,6 +3,8 @@ package connectivity.client;
 import com.nedap.go.Go;
 import connectivity.protocol.GoProtocol;
 import connectivity.SocketConnection;
+import game.Move;
+import game.Stone;
 import game.player.Player;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -53,13 +55,19 @@ public class PlayerConnection extends SocketConnection {
    */
   @Override
   public void handleMessage(String message) {
-    String[] splitString = message.replace(" ", "").split("~");
+    String[] splitString = message.split("~");
 
     switch (splitString[0]) {
       case GoProtocol.LOGIN -> {// Do nothing, this should never come from the server
         sendMessage(GoProtocol.ERROR + "~This should not come from the server");
       }
       case GoProtocol.QUEUE -> sendMessage(GoProtocol.ERROR + "~This should not come from the server");
+      case GoProtocol.PASS -> {
+        // Opponent passed, make a move
+        if (!splitString[1].equals(player.getColor())) {
+          player.determineMove();
+        }
+      }
       case GoProtocol.ACCEPTED -> {
         player.setConnected();
         System.out.println(message);
@@ -68,20 +76,44 @@ public class PlayerConnection extends SocketConnection {
         System.out.println(message);
         player.handleReject();
       }
-      case GoProtocol.QUEUED -> System.out.println(message);
+      case GoProtocol.QUEUED -> {
+        player.setQueued();
+        System.out.println(message);
+      }
       case GoProtocol.MAKE_MOVE -> {
         if (splitString[1].equals(player.getUsername())) {
           player.determineMove();
         }
       }
       case GoProtocol.MOVE -> {
-
+        int index = Integer.parseInt(splitString[1]);
+        Stone stone = splitString[2].equalsIgnoreCase("black") ? Stone.BLACK : Stone.WHITE;
+        player.updateState(new Move(stone, index));
       }
-      case GoProtocol.HELLO -> System.out.println(message);   // Acknowledge connection
-      case GoProtocol.GAME_STARTED -> System.out.println(message); // Game started between two players
+      case GoProtocol.HELLO -> {
+        System.out.println(message);   // Acknowledge connection
+        player.setConnected();
+      }
+      case GoProtocol.GAME_STARTED -> {
+        System.out.println(splitString[1]);
+        String[] names = splitString[1].split(",");
+        String username1 = names[0];
+        player.setQueued();
+        int boardDimension = Integer.parseInt(splitString[2]);
+        System.out.println(message); // Game started between two players
+        player.initializeState(boardDimension);
+        if (player.getUsername().equals(username1)) {
+          player.setColor("black");
+        } else {
+          player.setColor("white");
+        }
+      }
       case GoProtocol.GAME_OVER -> System.out.println(message); // Game over TODO fix
+      case GoProtocol.ERROR -> {
+        System.out.println("[CLIENT]");
+        System.out.println(message);
+      }
     }
-
   }
 
   /**
@@ -94,7 +126,6 @@ public class PlayerConnection extends SocketConnection {
 
   @Override
   public boolean sendMessage(String message) {
-    System.out.println("Playerconnection sendMessage" + message);
     return super.sendMessage(message);
   }
 }

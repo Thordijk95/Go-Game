@@ -43,14 +43,12 @@ public class PlayerTui {
       }
     }
     help();
-    System.out.println("Please provide your next input");
     String lastMessage = "";
     while (!lastMessage.equals("--quit")) {
       lastMessage = input.nextLine();
-      if (!lastMessage.equals("--help")) {
+      if (!lastMessage.equals("--help") && !lastMessage.equals("")) {
         player.sendMessage(lastMessage);
       }
-      System.out.println("Please provide your next input");
     }
     System.out.println("Quit received");
     System.exit(0);

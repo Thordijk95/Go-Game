@@ -1,6 +1,7 @@
 package connectivity;
 
 import connectivity.server.ConnectionHandler;
+import game.Game;
 import java.io.Console;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -76,6 +77,7 @@ public abstract class SocketServer {
   protected abstract void handleConnection(Socket socket);
 
   public abstract List<ConnectionHandler> getPlayers();
+  public abstract List<Game> getGames();
 
 }
 
