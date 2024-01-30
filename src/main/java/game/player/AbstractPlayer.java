@@ -1,6 +1,7 @@
 package game.player;
 
 import connectivity.client.PlayerConnection;
+import game.Move;
 
 public abstract class AbstractPlayer implements Player{
   private boolean connected = false;
@@ -42,5 +43,8 @@ public abstract class AbstractPlayer implements Player{
   public void setDisconnected() {
     connected = false;
   }
+
+  @Override
+  public abstract Move determineMove();
 }
 

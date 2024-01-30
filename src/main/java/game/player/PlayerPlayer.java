@@ -1,6 +1,7 @@
 package game.player;
 
 import connectivity.client.PlayerConnection;
+import game.Move;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -17,7 +18,7 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
   @Override
   public void setPlayerConnection(InetAddress inetAddress, int port) throws IOException {
     try {
-      playerConnection = new PlayerConnection(InetAddress.getLocalHost(), port);
+      playerConnection = new PlayerConnection(inetAddress, port);
       playerConnection.player = this;
       playerConnection.start();
     } catch (UnknownHostException e){
@@ -26,7 +27,6 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
   }
   @Override
   public void sendMessage(String message) {
-    System.out.println("sendMessage in PlayerPlayer");
     playerConnection.sendMessage(message);
   }
 
@@ -43,5 +43,15 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
   @Override
   public void setUsername(String username) {
     super.setUsername(username);
+  }
+
+  @Override
+  public Move determineMove() {
+    return null;
+  }
+
+  @Override
+  public void handleReject() {
+
   }
 }

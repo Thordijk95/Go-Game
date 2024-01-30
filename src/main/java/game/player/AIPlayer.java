@@ -1,5 +1,6 @@
 package game.player;
 
+import game.Move;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -22,6 +23,16 @@ public class AIPlayer extends AbstractPlayer{
 
   @Override
   public void sendMove(String message) {
+
+  }
+
+  @Override
+  public Move determineMove() {
+    return null;
+  }
+
+  @Override
+  public void handleReject() {
 
   }
 }

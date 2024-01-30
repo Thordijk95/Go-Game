@@ -1,5 +1,6 @@
 package game.player;
 
+import game.Move;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -14,5 +15,9 @@ public interface Player {
 
   void setConnected();
   void setDisconnected();
+
+  Move determineMove();
+
+  void handleReject();
 
 }
