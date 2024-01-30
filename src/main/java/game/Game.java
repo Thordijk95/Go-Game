@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface Game{
+
   List<ConnectionHandler> players = new ArrayList<>();
 
   String getStateString();

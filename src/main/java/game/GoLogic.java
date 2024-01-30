@@ -339,7 +339,7 @@ public class GoLogic {
    * @param target    being checked
    * @return if the target is already in the list or not.
    */
-  private boolean containsArray(List<int[]> arrayList, int[] target) {
+  public boolean containsArray(List<int[]> arrayList, int[] target) {
     for (int[] neighbor : arrayList) {
       if (Arrays.equals(neighbor, target)) {
         return true;

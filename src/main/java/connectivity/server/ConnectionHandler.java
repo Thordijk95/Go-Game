@@ -8,6 +8,7 @@ public class ConnectionHandler {
   public ServerConnection serverConnection;
   public GoServer goServer;
   public Stone stone;
+  public String username;
 
   public ConnectionHandler() {}
 
@@ -24,6 +25,8 @@ public class ConnectionHandler {
   }
 
   public void receiveUsername(String username) {
+    System.out.println("receiveUsername ConnectionHandler");
+    this.username = username;
     goServer.addPlayer(this);
   }
 
@@ -41,5 +44,10 @@ public class ConnectionHandler {
   public void sendMove(String move, Stone stone) {
     serverConnection.sendMove(GoProtocol.MOVE, move, stone);
   }
+
+  public void sendMessage(String message) {
+    serverConnection.sendMessage(message);
+  }
+
 
 }

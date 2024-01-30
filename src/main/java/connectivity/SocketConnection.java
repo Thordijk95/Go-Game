@@ -71,6 +71,7 @@ public abstract class SocketConnection {
     try {
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
+        System.out.println("receiveMessage SocketConnection");
         handleMessage(inputLine);
       }
     } catch (IOException e) {
@@ -88,6 +89,7 @@ public abstract class SocketConnection {
    * @return true if the message was sent successfully, false if the connection was closed
    */
   protected boolean sendMessage(String message) {
+    System.out.println("sendMessage SocketConnection");
     try {
       out.write(message);
       out.newLine();

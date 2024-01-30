@@ -3,6 +3,7 @@ package game.player;
 import connectivity.client.PlayerConnection;
 
 public abstract class AbstractPlayer implements Player{
+  private boolean connected = false;
   private PlayerConnection playerConnection;
   private String username;
 
@@ -26,5 +27,20 @@ public abstract class AbstractPlayer implements Player{
 
   @Override
   public abstract void sendMove(String message);
+
+  @Override
+  public boolean isConnected() {
+    return connected;
+  }
+
+  @Override
+  public void setConnected() {
+    connected = true;
+  }
+
+  @Override
+  public void setDisconnected() {
+    connected = false;
+  }
 }
 

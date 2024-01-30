@@ -1,10 +1,13 @@
 package connectivity;
 
+import connectivity.server.ConnectionHandler;
+import java.io.Console;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 
 public abstract class SocketServer {
   private final ServerSocket serverSocket;
@@ -32,7 +35,7 @@ public abstract class SocketServer {
    * Returns the port on which this server is listening for connections.
    * @return the port on which this server is listening for connections
    */
-  protected int getPort() {
+  public int getPort() {
     return serverSocket.getLocalPort();
   }
 
@@ -41,7 +44,7 @@ public abstract class SocketServer {
    * This method will block until the server socket is closed, for example by invoking closeServerSocket.
    * @throws IOException if an I/O error occurs when waiting for a connection
    */
-  protected void acceptConnections() throws IOException {
+  public void acceptConnections() throws IOException {
     while (!serverSocket.isClosed()) {
       try {
         Socket socket = serverSocket.accept();
@@ -57,7 +60,7 @@ public abstract class SocketServer {
    * If called from a different thread than the one running acceptConnections, then that thread will return from
    * acceptConnections.
    */
-  protected synchronized void close() {
+  public synchronized void close() {
     try {
       if (!serverSocket.isClosed()) serverSocket.close();
     } catch (IOException ignored) {
@@ -71,6 +74,8 @@ public abstract class SocketServer {
    * @return the connection handler
    */
   protected abstract void handleConnection(Socket socket);
+
+  public abstract List<ConnectionHandler> getPlayers();
 
 }
 

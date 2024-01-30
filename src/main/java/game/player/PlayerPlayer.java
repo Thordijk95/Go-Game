@@ -7,12 +7,11 @@ import java.net.UnknownHostException;
 
 public class PlayerPlayer extends game.player.AbstractPlayer {
   private PlayerConnection playerConnection;
-  private String username;
 
   public PlayerPlayer() { }
 
   public PlayerPlayer(String username) {
-    this.username = username;
+    super.setUsername(username);
   }
 
   @Override
@@ -20,17 +19,29 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
     try {
       playerConnection = new PlayerConnection(InetAddress.getLocalHost(), port);
       playerConnection.player = this;
+      playerConnection.start();
     } catch (UnknownHostException e){
       e.printStackTrace();
     }
   }
   @Override
   public void sendMessage(String message) {
+    System.out.println("sendMessage in PlayerPlayer");
     playerConnection.sendMessage(message);
   }
 
   @Override
   public void sendMove(String message) {
 
+  }
+
+  @Override
+  public String getUsername() {
+    return super.getUsername();
+  }
+
+  @Override
+  public void setUsername(String username) {
+    super.setUsername(username);
   }
 }

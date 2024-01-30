@@ -1,6 +1,7 @@
 package connectivity.server;
 
 import connectivity.SocketServer;
+import connectivity.protocol.GoProtocol;
 import game.*;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GoServer extends SocketServer {
-  private List<ConnectionHandler> connectionHandlerList;
+  private List<ConnectionHandler> players;
   private List<ConnectionHandler> queue;
   private List<Game> games;
   public Integer gameDimension;
@@ -25,18 +26,11 @@ public class GoServer extends SocketServer {
   public GoServer(int port) throws IOException {
     super(port);
     queue = new ArrayList<>();
-    connectionHandlerList = new ArrayList<>();
-    games = new ArrayList<>();
-    acceptConnections();
-  }
-
-  public GoServer(InetAddress inetAddres, int port) throws IOException {
-    super(port, inetAddres);
-    queue = new ArrayList<>();
-    connectionHandlerList = new ArrayList<>();
+    players = new ArrayList<>();
     games = new ArrayList<>();
   }
 
+  @Override
   public int getPort() { return super.getPort(); }
 
 
@@ -65,7 +59,6 @@ public class GoServer extends SocketServer {
       connectionHandler.goServer = this;
       serverConnection.connectionHandler = connectionHandler;
       serverConnection.start();
-      addPlayer(connectionHandler);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -79,7 +72,7 @@ public class GoServer extends SocketServer {
    * @return if the process was successful.
    */
   protected synchronized void addToQueue(ConnectionHandler player) {
-    if (connectionHandlerList.contains(player)) {
+    if (players.contains(player)) {
       queue.add(player);
       if (queue.size() == 2) {
         startGame();
@@ -87,12 +80,22 @@ public class GoServer extends SocketServer {
     }
   }
 
-  protected void addPlayer(ConnectionHandler player) {
-    connectionHandlerList.add(player);
+  protected boolean addPlayer(ConnectionHandler player) {
+    for (ConnectionHandler handler : players) {
+      if (player.getUsername().equals(handler.getUsername())) {
+        // Player with username already exists
+        declinelayerAdded(player);
+        return false;
+      }
+    }
+    System.out.println("Adding player on the server side");
+    players.add(player);
+    confirmPlayerAdded(player);
+    return true;
   }
 
   protected void removePlayer(ConnectionHandler player) {
-    connectionHandlerList.remove(player);
+    players.remove(player);
   }
 
   /**
@@ -138,6 +141,32 @@ public class GoServer extends SocketServer {
   protected void receiveResign(ConnectionHandler player) {
     for (Game game : games) {
       game.gameOverResign(player);
+    }
+  }
+
+  public List<ConnectionHandler> getPlayers() {
+    return players;
+  }
+
+  /**
+   * Broadcast to all players that a player with a name has logged in to the server.
+   * @param player that logged in
+   */
+  private void confirmPlayerAdded(ConnectionHandler player) {
+    // Confirm a player has been added
+    for (ConnectionHandler handler : players) {
+      handler.sendMessage(GoProtocol.ACCEPTED +"~" + player.getUsername());
+    }
+  }
+
+  /**
+   * Broadcast to all players that a player with a name has tried to login but has been rejected.
+   * @param player that was rejected
+   */
+  private void declinelayerAdded(ConnectionHandler player) {
+    // Confirm a player has been added
+    for (ConnectionHandler handler : players) {
+      handler.sendMessage(GoProtocol.REJECTED +"~" + player.getUsername());
     }
   }
 }

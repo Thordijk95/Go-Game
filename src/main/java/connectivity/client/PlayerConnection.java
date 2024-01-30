@@ -1,5 +1,6 @@
 package connectivity.client;
 
+import com.nedap.go.Go;
 import connectivity.protocol.GoProtocol;
 import connectivity.SocketConnection;
 import game.player.Player;
@@ -55,11 +56,17 @@ public class PlayerConnection extends SocketConnection {
     String[] splitString = message.replace(" ", "").split("~");
 
     switch (splitString[0]) {
-      case GoProtocol.LOGIN -> {
-        sendMessage(message);
-        player.setUsername(splitString[1]);
+      case GoProtocol.LOGIN -> {// Do nothing, this should never come from the server
+        sendMessage(GoProtocol.ERROR + "~This should not come from the server");
       }
       case GoProtocol.QUEUE -> sendMessage(message);
+      case GoProtocol.ACCEPTED -> {
+        player.setConnected();
+        System.out.println(message);
+      }
+      case GoProtocol.REJECTED -> {
+        System.out.println(message);
+      }
     }
 
   }
@@ -74,6 +81,7 @@ public class PlayerConnection extends SocketConnection {
 
   @Override
   public boolean sendMessage(String message) {
+    System.out.println("Playerconnection sendMessage");
     return super.sendMessage(message);
   }
 }

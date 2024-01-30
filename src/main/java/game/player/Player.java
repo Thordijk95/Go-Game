@@ -10,4 +10,9 @@ public interface Player {
   void sendMessage(String message);
   void sendMove(String message);
 
+  boolean isConnected();
+
+  void setConnected();
+  void setDisconnected();
+
 }

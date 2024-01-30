@@ -57,6 +57,7 @@ public class ServerConnection extends SocketConnection {
    */
   @Override
   protected void handleMessage(String message) {
+    System.out.println("handleMessage ServerConnection");
     System.out.println("received: " + message);
     String[] substrings = message.split(GoProtocol.SEPARATOR);
     if (substrings.length > 1) {
@@ -115,9 +116,10 @@ public class ServerConnection extends SocketConnection {
     super.sendMessage(String.format(protocol + "~" + move + "~" + stone.toString()));
   }
 
-  public void sendMessage(GoProtocol protocol, String message) {
-    String srvrMsg = String.format(protocol + "~" + message);
-    super.sendMessage(srvrMsg);
+  @Override
+  public boolean sendMessage(String message) {
+    String msg = String.format(message);
+    return super.sendMessage(msg);
   }
 
   public String getUsername() {return username;}
