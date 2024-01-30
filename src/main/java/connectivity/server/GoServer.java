@@ -9,13 +9,19 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import javax.swing.Renderer;
 
 public class GoServer extends SocketServer {
   private List<ConnectionHandler> players;
-  private List<ConnectionHandler> queue;
+  private Queue<ConnectionHandler> queue;
   private List<Game> games;
-  public Integer gameDimension;
+  public int gameDimension = 9;
+  private Lock lock = new ReentrantLock();
 
   /**
    * Creates a new Server that listens for connections on the given port. Use port 0 to let the system
@@ -26,7 +32,7 @@ public class GoServer extends SocketServer {
    */
   public GoServer(int port) throws IOException {
     super(port);
-    queue = new ArrayList<>();
+    queue = new LinkedList<>();
     players = new ArrayList<>();
     games = new ArrayList<>();
   }
@@ -73,16 +79,22 @@ public class GoServer extends SocketServer {
    * @param player to add
    * @return if the process was successful.
    */
-  protected synchronized void addToQueue(ConnectionHandler player) {
+  protected void addToQueue(ConnectionHandler player) {
+    lock.lock();
     if (players.contains(player)) {
       queue.add(player);
+      player.sendMessage(GoProtocol.QUEUED);
       if (queue.size() == 2) {
         startGame();
       }
+    } else {
+      player.sendMessage(GoProtocol.ERROR + "~Not logged in");
     }
+    lock.unlock();
   }
 
   protected boolean addPlayer(ConnectionHandler player) {
+    lock.lock();
     try {
       for (ConnectionHandler handler : players) {
         if (player.getUsername().equals(handler.getUsername())) {
@@ -93,12 +105,13 @@ public class GoServer extends SocketServer {
       }
     } catch (InvalidNameException e) {
       e.printStackTrace();
+      lock.unlock();
       return false;
     }
     // Not already in the list, add them
-    System.out.println("Adding player on the server side");
     players.add(player);
     confirmPlayerAdded(player);
+    lock.unlock();
     return true;
   }
 
@@ -111,9 +124,14 @@ public class GoServer extends SocketServer {
    * This game is added to the games list on the server
    */
   protected void startGame() {
-    GoGame game = new GoGame(gameDimension, queue);
-    queue.clear();
+    List<ConnectionHandler> players = new ArrayList<>();
+    players.add(queue.remove());
+    players.add(queue.remove());
+    GoGame game = new GoGame(gameDimension, players);
     games.add(game);
+    for (ConnectionHandler player : game.players) {
+      player.sendMessage(GoProtocol.GAME_STARTED + "~" + players.getFirst().getUsername() + "," + players.getLast().getUsername() + "~" + gameDimension);
+    }
   }
 
   protected void receiveMove(Move move, ConnectionHandler player) {
@@ -176,6 +194,10 @@ public class GoServer extends SocketServer {
     for (ConnectionHandler handler : players) {
       handler.sendMessage(GoProtocol.REJECTED +"~" + player.getUsername());
     }
+  }
+
+  public List<Game> getGames() {
+    return games;
   }
 
 }

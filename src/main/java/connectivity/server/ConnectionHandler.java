@@ -25,7 +25,6 @@ public class ConnectionHandler {
   }
 
   public void receiveUsername(String username) {
-    System.out.println("receiveUsername ConnectionHandler");
     this.username = username;
     goServer.addPlayer(this);
   }

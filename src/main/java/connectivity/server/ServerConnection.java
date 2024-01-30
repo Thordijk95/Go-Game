@@ -1,5 +1,7 @@
 package connectivity.server;
 
+import com.nedap.go.exceptions.InvalidMessageException;
+import com.nedap.go.exceptions.InvalidNameException;
 import connectivity.SocketConnection;
 import connectivity.protocol.GoProtocol;
 
@@ -60,7 +62,7 @@ public class ServerConnection extends SocketConnection {
     System.out.println("handleMessage ServerConnection");
     System.out.println("received: " + message);
     String[] substrings = message.split(GoProtocol.SEPARATOR);
-    if (substrings.length > 1) {
+    try {
       switch (substrings[0]) {
         // Message is coming from the chat server and was sent by another client,
         // print it to the screen of the current client
@@ -78,7 +80,7 @@ public class ServerConnection extends SocketConnection {
             String[] coordinates = location.split(",");
             int column = Integer.parseInt(coordinates[0]);
             int row = Integer.parseInt(coordinates[1]);
-            index = new GoLogic().calculateIndex(new int[] {column, row});
+            index = new GoLogic().calculateIndex(new int[]{column, row});
           } else {
             index = Integer.parseInt(location);
           }
@@ -87,12 +89,22 @@ public class ServerConnection extends SocketConnection {
         }
         case GoProtocol.PASS -> connectionHandler.receivePass();
         case GoProtocol.RESIGN -> connectionHandler.receiveResign();
-        case GoProtocol.ERROR -> System.out.println(substrings[1]);
-        default -> { // invalid entry, do nothing
+        case GoProtocol.ERROR -> {
+          System.out.println("[SERVER]");
+          System.out.println(substrings[1]);
+        }
+        default -> {
+          System.out.println(message);
+          throw new InvalidMessageException(
+              "Message does not adhere to the protocol."); // invalid entry, do nothing
         }
       }
-    } //else do nothing
-  }
+    } catch (InvalidMessageException e) {
+      e.printStackTrace();
+      sendMessage(GoProtocol.ERROR + "~Invalid message format");
+    }
+  } //else do nothing
+
 
   /**
    * Handles a disconnect from the connection, i.e., when the connection is closed.

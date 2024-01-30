@@ -27,16 +27,19 @@ public class GoServerTui {
       e.printStackTrace();
     }
     help();
-    while (!input.nextLine().equals("--quit")) {
-      String[] splitString = input.nextLine().replace(" ", "").split("~");
-      switch (splitString[0]) {
-        case "--dimension":
-          dimension =Integer.parseInt(splitString[1]);
-        case "--help":
-          help();
-        default:
-          System.out.println("That is not a valid input.");
-          help();
+    String lastMessage = input.nextLine();
+    while (!lastMessage.equals("--quit")) {
+      if (!lastMessage.equals("")) {
+        String[] splitString = input.nextLine().replace(" ", "").split("~");
+        switch (splitString[0]) {
+          case "--dimension":
+            goServer.gameDimension = dimension;
+          case "--help":
+            help();
+          default:
+            System.out.println("That is not a valid input.");
+            help();
+        }
       }
       System.out.println("Provide the next input");
     }
