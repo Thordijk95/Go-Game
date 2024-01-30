@@ -16,6 +16,16 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
   }
 
   @Override
+  public void sendMessage(String message) {
+    playerConnection.sendMessage(message);
+  }
+
+  @Override
+  public void sendMove(String message) {
+
+  }
+
+  @Override
   public void setPlayerConnection(InetAddress inetAddress, int port) throws IOException {
     try {
       playerConnection = new PlayerConnection(inetAddress, port);
@@ -24,15 +34,6 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
     } catch (UnknownHostException e){
       e.printStackTrace();
     }
-  }
-  @Override
-  public void sendMessage(String message) {
-    playerConnection.sendMessage(message);
-  }
-
-  @Override
-  public void sendMove(String message) {
-
   }
 
   @Override
