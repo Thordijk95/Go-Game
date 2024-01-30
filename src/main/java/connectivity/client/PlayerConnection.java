@@ -59,14 +59,27 @@ public class PlayerConnection extends SocketConnection {
       case GoProtocol.LOGIN -> {// Do nothing, this should never come from the server
         sendMessage(GoProtocol.ERROR + "~This should not come from the server");
       }
-      case GoProtocol.QUEUE -> sendMessage(message);
+      case GoProtocol.QUEUE -> sendMessage(GoProtocol.ERROR + "~This should not come from the server");
       case GoProtocol.ACCEPTED -> {
         player.setConnected();
         System.out.println(message);
       }
       case GoProtocol.REJECTED -> {
         System.out.println(message);
+        player.handleReject();
       }
+      case GoProtocol.QUEUED -> System.out.println(message);
+      case GoProtocol.MAKE_MOVE -> {
+        if (splitString[1].equals(player.getUsername())) {
+          player.determineMove();
+        }
+      }
+      case GoProtocol.MOVE -> {
+
+      }
+      case GoProtocol.HELLO -> System.out.println(message);   // Acknowledge connection
+      case GoProtocol.GAME_STARTED -> System.out.println(message); // Game started between two players
+      case GoProtocol.GAME_OVER -> System.out.println(message); // Game over TODO fix
     }
 
   }
@@ -81,7 +94,7 @@ public class PlayerConnection extends SocketConnection {
 
   @Override
   public boolean sendMessage(String message) {
-    System.out.println("Playerconnection sendMessage");
+    System.out.println("Playerconnection sendMessage" + message);
     return super.sendMessage(message);
   }
 }

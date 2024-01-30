@@ -39,17 +39,21 @@ public class PlayerTui {
         connection = true;
       } catch (IOException e) {
         System.out.println("IOException, please provide a new address and or portnumber");
-        inetAddress = null;
         e.printStackTrace();
       }
     }
     help();
     System.out.println("Please provide your next input");
-    while (!input.nextLine().equals("--quit")) {
-      player.sendMessage(input.nextLine());
+    String lastMessage = "";
+    while (!lastMessage.equals("--quit")) {
+      lastMessage = input.nextLine();
+      if (!lastMessage.equals("--help")) {
+        player.sendMessage(lastMessage);
+      }
       System.out.println("Please provide your next input");
     }
     System.out.println("Quit received");
+    System.exit(0);
   }
 
   public void help() {
