@@ -1,5 +1,6 @@
 package connectivity.server;
 
+import com.nedap.go.exceptions.InvalidNameException;
 import connectivity.SocketServer;
 import connectivity.protocol.GoProtocol;
 import game.*;
@@ -59,6 +60,7 @@ public class GoServer extends SocketServer {
       connectionHandler.goServer = this;
       serverConnection.connectionHandler = connectionHandler;
       serverConnection.start();
+      connectionHandler.sendMessage(GoProtocol.HELLO + "~Please respond with - LOGIN ~ <username>");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -81,13 +83,19 @@ public class GoServer extends SocketServer {
   }
 
   protected boolean addPlayer(ConnectionHandler player) {
-    for (ConnectionHandler handler : players) {
-      if (player.getUsername().equals(handler.getUsername())) {
-        // Player with username already exists
-        declinelayerAdded(player);
-        return false;
+    try {
+      for (ConnectionHandler handler : players) {
+        if (player.getUsername().equals(handler.getUsername())) {
+          // Player with username already exists
+          declinelayerAdded(player);
+          throw new InvalidNameException("Name already taken");
+        }
       }
+    } catch (InvalidNameException e) {
+      e.printStackTrace();
+      return false;
     }
+    // Not already in the list, add them
     System.out.println("Adding player on the server side");
     players.add(player);
     confirmPlayerAdded(player);
@@ -169,4 +177,5 @@ public class GoServer extends SocketServer {
       handler.sendMessage(GoProtocol.REJECTED +"~" + player.getUsername());
     }
   }
+
 }
