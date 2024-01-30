@@ -79,6 +79,17 @@ public class connectivityTest {
       if (player2.isConnected()) break;
     }
     assertEquals(1, goServer.getPlayers().size());
+
+    player2.setUsername("Henk2");
+    String message2 = GoProtocol.LOGIN + "~" + player2.getUsername();
+
+    player2.sendMessage(message2);
+
+    while(true) {
+      if (player2.isConnected()) break;
+    }
+
+    assertEquals(2, goServer.getPlayers().size());
     goServer.close();
   }
 }
