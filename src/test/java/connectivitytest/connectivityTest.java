@@ -10,9 +10,6 @@ import game.player.Player;
 import game.player.PlayerPlayer;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,11 +48,11 @@ public class connectivityTest {
     System.out.println("Sending message once:" + message);
     playerPlayer.sendMessage(message);
     // Wait for the server to process the login
-    while(!playerPlayer.isConnected()) {
+    while(!playerPlayer.getConnected()) {
       //do nothing
     }
     // check that the player is properly added to the server
-    assertEquals(playerPlayer.getUsername(), goServer.getPlayers().getFirst().getUsername());
+    assertEquals(playerPlayer.getUsername(), goServer.getPlayerConnectionHandles().getFirst().getUsername());
 
     goServer.close();
   }
@@ -75,10 +72,10 @@ public class connectivityTest {
     player2.sendMessage(message);
 
     while(true) {
-      if (player1.isConnected()) break;
-      if (player2.isConnected()) break;
+      if (player1.getConnected()) break;
+      if (player2.getConnected()) break;
     }
-    assertEquals(1, goServer.getPlayers().size());
+    assertEquals(1, goServer.getPlayerConnectionHandles().size());
 
     player2.setUsername("Henk2");
     String message2 = GoProtocol.LOGIN + "~" + player2.getUsername();
@@ -86,10 +83,10 @@ public class connectivityTest {
     player2.sendMessage(message2);
 
     while(true) {
-      if (player2.isConnected()) break;
+      if (player2.getConnected()) break;
     }
 
-    assertEquals(2, goServer.getPlayers().size());
+    assertEquals(2, goServer.getPlayerConnectionHandles().size());
     goServer.close();
   }
 }

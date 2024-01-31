@@ -1,22 +1,13 @@
 package gametest;
 
-import com.nedap.go.Go;
 import connectivity.SocketServer;
-import connectivity.client.PlayerConnection;
-import connectivity.server.ConnectionHandler;
 import connectivity.server.GoServer;
-import game.Game;
 import game.player.Player;
 import game.player.PlayerPlayer;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 
 public class Game_Test {
 
@@ -41,6 +32,7 @@ public class Game_Test {
 
     Player player1 = new PlayerPlayer("Henk");
     Player player2 = new PlayerPlayer("Henk2");
+
     try {
       player1.setPlayerConnection(InetAddress.getLocalHost(), 8080);
       player2.setPlayerConnection(InetAddress.getLocalHost(), 8080);
@@ -48,22 +40,22 @@ public class Game_Test {
       e.printStackTrace();
     }
 
-    while(true) {
-      if (player1.isConnected() && player2.isConnected()){
-        break;
-      }
+    while(!(player1.getConnected() && player2.getConnected())) {
+      System.out.println("wait for connection");
     }
 
     player1.sendMessage("LOGIN~Henk");
     player2.sendMessage("LOGIN~Henk2");
 
+    while(!(player1.getLoggedIn() && player2.getLoggedIn())) {
+      System.out.println("Wait for login");
+    }
+
     player1.sendMessage("QUEUE");
     player2.sendMessage("QUEUE");
 
-    while (true) {
-      if (player1.getQueued() && player2.getQueued()) {
-        break;
-      }
+    while (!(player1.getQueued() && player2.getQueued()) ) {
+      System.out.println("Wait for queued response");
     }
   }
 }
