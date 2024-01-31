@@ -57,6 +57,7 @@ public class GoGame implements Game{
    */
   @Override
   public void updateState(Move move) {
+    consecutivePasses = 0;
     // Define the new board position
     Position potentialPosition = new Position(board.currentPosition, move);
     List<int[]> capturedStones = logic.checkCaptures(potentialPosition, move.stone);
@@ -108,6 +109,7 @@ public class GoGame implements Game{
    * Score is based on area
    * @return Which stone won,
    */
+  @Override
   public Stone getWinner() {
     // returns the winner of the board connected to the game logic
     if (board.currentPosition.score.scoreBlack > board.currentPosition.score.scoreWhite) {
@@ -127,16 +129,14 @@ public class GoGame implements Game{
    * @param player
    */
   @Override
-  public void pass(ConnectionHandler player) {
+  public int pass(ConnectionHandler player) {
     consecutivePasses += 1;
-    if (consecutivePasses == 2) {
-      gameOverScore();
-    }
+    return consecutivePasses;
   }
 
   @Override
-  public void gameOverScore() {
-
+  public String gameOverScore() {
+    return board.currentPosition.score.toString();
   }
 
   @Override

@@ -167,6 +167,13 @@ public class GoServer extends SocketServer {
     players.getFirst().sendMessage("MAKE MOVE");
   }
 
+  protected void gameOver(Game game, String winner, String score) {
+    List<ConnectionHandler> players = game.getPLayers();
+    for(ConnectionHandler player : players) {
+      player.sendMessage(GoProtocol.GAME_OVER+"~"+winner+"~"+score);
+    }
+  }
+
   protected void receiveMove(Move move, ConnectionHandler player) {
     // Get the game that the player is taking part in.
     Game game = null;
@@ -205,7 +212,9 @@ public class GoServer extends SocketServer {
   protected void receivePass(ConnectionHandler player) {
     for (Game game : games) {
       if(game.getPLayers().contains(player)) {
-        game.pass(player);
+        if(game.pass(player) == 2) {
+          gameOver(game, game.getWinner().toString(), game.gameOverScore());
+        }
       }
     }
   }
@@ -216,7 +225,11 @@ public class GoServer extends SocketServer {
    */
   protected void receiveResign(ConnectionHandler player) {
     for (Game game : games) {
-      game.gameOverResign(player);
+      if(game.getPLayers().contains(player)) {
+        if(game.pass(player) == 2) {
+          gameOver(game, game.getOtherPlayer(player).stone.toString(), game.gameOverScore());
+        }
+      }
     }
   }
 

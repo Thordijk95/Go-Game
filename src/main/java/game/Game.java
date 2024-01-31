@@ -24,15 +24,16 @@ public interface Game{
 
   void setPosition(Position position);
 
-  void pass(ConnectionHandler player);
+  int pass(ConnectionHandler player);
 
   /**
    * Game over is called when two consecutive passes are played, or when a player Resigns.
    */
-  void gameOverScore();
+  String gameOverScore();
   void gameOverResign(ConnectionHandler player);
 
   ConnectionHandler getAtTurn() throws NoTurnAssignedException;
 
   int getDimension();
+  Stone getWinner();
 }
