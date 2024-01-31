@@ -257,9 +257,7 @@ public class GoServer extends SocketServer {
    */
   private void confirmPlayerAdded(ConnectionHandler player) {
     // Confirm a player has been added
-    for (ConnectionHandler handler : connectedPlayers) {
-      handler.sendMessage(GoProtocol.ACCEPTED +"~" + player.getUsername());
-    }
+    player.sendMessage(GoProtocol.ACCEPTED +"~" + player.getUsername());
   }
 
   /**

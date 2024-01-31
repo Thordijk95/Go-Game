@@ -61,7 +61,7 @@ public abstract class AbstractPlayer implements Player{
   }
 
   @Override
-  public abstract Move determineMove();
+  public abstract void determineMove();
 
   @Override
   public String getColor() {

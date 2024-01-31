@@ -27,8 +27,8 @@ public class AIPlayer extends AbstractPlayer{
   }
 
   @Override
-  public Move determineMove() {
-    return null;
+  public void determineMove() {
+
   }
 
   @Override

@@ -75,12 +75,8 @@ public class PlayerTui {
     System.out.println("ERROR ~ <error message> to communicate an error to the server");
   }
 
-  public Move determinMoveTui() {
-    Scanner input = new Scanner(System.in);
-    String[] splitString = input.nextLine().split("~");
-    int index = Integer.parseInt(splitString[1]);
-    Stone stone = player.getColor() == "black" ? Stone.BLACK : Stone.WHITE;
-    return new Move(stone, index);
+  public void determinMoveTui() {
+    // Do nothing, handled by server
   }
 
 }

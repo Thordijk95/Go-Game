@@ -78,7 +78,7 @@ public class PlayerConnection extends SocketConnection {
         player.setQueued();
       }
       case GoProtocol.MAKE_MOVE -> {
-          sendMove(player.determineMove());
+          player.determineMove();
       }
       case GoProtocol.MOVE -> {
         // Update your board with any move reflected by the server

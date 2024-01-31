@@ -19,7 +19,7 @@ public interface Player {
   void setConnected();
   void setDisconnected();
 
-  Move determineMove();
+  void determineMove();
 
   void handleReject();
 

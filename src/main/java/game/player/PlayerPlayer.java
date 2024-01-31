@@ -52,11 +52,11 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
   }
 
   @Override
-  public Move determineMove() {
+  public void determineMove() {
     if (playerTui != null) {
-      return playerTui.determinMoveTui();
+      playerTui.determinMoveTui();
     } else {
-      return new Move(stone, new Random().nextInt((int) Math.pow(super.goGame.getDimension(), 2)));
+      playerConnection.sendMove(new Move(stone, new Random().nextInt((int) Math.pow(super.goGame.getDimension(), 2))));
     }
   }
 
