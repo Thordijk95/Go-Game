@@ -1,5 +1,6 @@
 package connectivity.server;
 
+import com.nedap.go.Go;
 import connectivity.protocol.GoProtocol;
 import game.Move;
 import game.Stone;
@@ -48,5 +49,17 @@ public class ConnectionHandler {
     serverConnection.sendMessage(message);
   }
 
+  public void sendError(String errorMessage) {
+    serverConnection.sendMessage(GoProtocol.ERROR + "~"+ errorMessage);
+  }
+
+  /**
+   * Called by the server when a move is invalid.
+   * @param message to send to the player.
+   */
+  public void sendMoveRefused(String message) {
+    serverConnection.sendMessage(GoProtocol.ERROR + "~" + message);
+    serverConnection.sendMessage(GoProtocol.MAKE_MOVE);
+  }
 
 }

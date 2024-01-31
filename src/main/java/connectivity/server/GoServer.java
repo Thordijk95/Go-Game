@@ -1,12 +1,15 @@
 package connectivity.server;
 
+import com.nedap.go.exceptions.InvalidMoveException;
 import com.nedap.go.exceptions.InvalidNameException;
+import com.nedap.go.exceptions.InvalidPlayerGameException;
+import com.nedap.go.exceptions.InvalidPlayerTurnException;
+import com.nedap.go.exceptions.NoTurnAssignedException;
 import connectivity.SocketServer;
 import connectivity.protocol.GoProtocol;
 import game.*;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -14,7 +17,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.swing.Renderer;
 
 public class GoServer extends SocketServer {
   private List<ConnectionHandler> players;
@@ -70,7 +72,6 @@ public class GoServer extends SocketServer {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
   }
 
   /**
@@ -93,13 +94,18 @@ public class GoServer extends SocketServer {
     lock.unlock();
   }
 
+  /**
+   * Add a player to the list.
+   * @param player to add
+   * @return if adding was successfull.
+   */
   protected boolean addPlayer(ConnectionHandler player) {
     lock.lock();
     try {
       for (ConnectionHandler handler : players) {
         if (player.getUsername().equals(handler.getUsername())) {
           // Player with username already exists
-          declinelayerAdded(player);
+          declinePlayerAdded(player);
           throw new InvalidNameException("Name already taken");
         }
       }
@@ -115,11 +121,23 @@ public class GoServer extends SocketServer {
     return true;
   }
 
-  protected void removePlayer(ConnectionHandler player) {
-    players.remove(player);
-  }
-
   /**
+   * Remove a player from the player list.
+   * @param player to remove
+   */
+   protected void removePlayer(ConnectionHandler player) {
+     lock.lock();
+     try {
+       players.remove(player);
+       lock.unlock();
+     } catch (IndexOutOfBoundsException | NullPointerException e) {
+       System.out.println("Player was not registered in the player list.");
+       e.printStackTrace();
+       lock.unlock();
+     }
+   }
+
+   /**
    * When a queue reaches the length of 2 a game is started with the players currently in the queue.
    * This game is added to the games list on the server
    */
@@ -137,14 +155,28 @@ public class GoServer extends SocketServer {
 
   protected void receiveMove(Move move, ConnectionHandler player) {
     // Get the game that the player is taking part in.
-    for (Game game : games) {
-      if (game.getPLayers().contains(player)) {
-        List<ConnectionHandler> players = game.getPLayers();
-        if (game.validateMove(move, player)) {
-          game.updateState(move);
-
-        }
+    Game game = null;
+    try {
+      game = getPlayerGame(player);
+    } catch (InvalidPlayerGameException e) {
+      e.printStackTrace();
+    }
+    try {
+      if (game.getAtTurn() != player) {
+        throw new InvalidPlayerTurnException();
       }
+      if (game != null && game.validateMove(move, player) ) {
+        game.updateState(move);
+        switchTurn(game);
+      }
+    } catch (InvalidMoveException e){
+      e.printStackTrace();
+      refuseMove(player, e.getMessage());
+    } catch (InvalidPlayerTurnException e) {
+      e.printStackTrace();
+      player.sendError(e.getMessage());
+    } catch (NoTurnAssignedException e) {
+      e.printStackTrace();
     }
   }
 
@@ -176,6 +208,33 @@ public class GoServer extends SocketServer {
   }
 
   /**
+   * Retrieve all the games that are currently running.
+   * @return running games
+   */
+  public List<Game> getGames() {
+    return games;
+  }
+
+  /**
+   * Get all the game that a player is playing in.
+   * @param player for reference
+   * @return the game the player is playing
+   * @throws InvalidPlayerGameException when the player is not part of any game.
+   */
+  public Game getPlayerGame(ConnectionHandler player) throws InvalidPlayerGameException {
+    try {
+      for (Game game : games) {
+        if (game.getPLayers().contains(player)) {
+          return game;
+        }
+      }
+      throw new InvalidPlayerGameException("Player is not part of any game");
+    } catch (InvalidPlayerGameException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+  /**
    * Broadcast to all players that a player with a name has logged in to the server.
    * @param player that logged in
    */
@@ -190,15 +249,22 @@ public class GoServer extends SocketServer {
    * Broadcast to all players that a player with a name has tried to login but has been rejected.
    * @param player that was rejected
    */
-  private void declinelayerAdded(ConnectionHandler player) {
+  private void declinePlayerAdded(ConnectionHandler player) {
     // Confirm a player has been added
     for (ConnectionHandler handler : players) {
       handler.sendMessage(GoProtocol.REJECTED +"~" + player.getUsername());
     }
   }
 
-  public List<Game> getGames() {
-    return games;
+  private void switchTurn(Game game) throws NoTurnAssignedException {
+    game.switchTurn();
+    ConnectionHandler player = game.getAtTurn();
+    player.sendMessage(GoProtocol.MAKE_MOVE);
   }
 
+
+
+  private void refuseMove(ConnectionHandler player, String message) {
+    player.sendMoveRefused(message);
+  }
 }
