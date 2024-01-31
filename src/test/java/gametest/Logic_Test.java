@@ -272,4 +272,40 @@ public class Logic_Test {
 
     assertFalse(logic.checkKoRule(position4, goGame.scorePositionHashMap));
   }
+
+  @Test
+  void testCaptures() {
+    dimension = 9;
+    logic.dimension = dimension;
+    goGame = new GoGame(dimension, players);
+    goGame.updateState(new Move(Stone.BLACK, 0));
+    goGame.updateState(new Move(Stone.WHITE, 1));
+    goGame.updateState(new Move(Stone.BLACK, 2));
+    goGame.updateState(new Move(Stone.WHITE, 10));
+    goGame.updateState(new Move(Stone.BLACK, 11));
+    goGame.updateState(new Move(Stone.WHITE, 9));
+    goGame.updateState(new Move(Stone.BLACK, 18));
+    goGame.updateState(new Move(Stone.WHITE, 0));
+    goGame.updateState(new Move(Stone.BLACK, 19));
+
+    System.out.println(goGame.board.currentPosition.toString());
+    assertEquals(77, goGame.board.currentPosition.score.scoreBlack);
+
+    goGame.updateState(new Move(Stone.WHITE, 72));
+    goGame.updateState(new Move(Stone.BLACK, 10));
+    goGame.updateState(new Move(Stone.WHITE, 27));
+    goGame.updateState(new Move(Stone.BLACK, 9));
+    goGame.updateState(new Move(Stone.WHITE, 28));
+    goGame.updateState(new Move(Stone.BLACK, 1));
+    goGame.updateState(new Move(Stone.WHITE, 20));
+    goGame.updateState(new Move(Stone.BLACK, 30));
+    goGame.updateState(new Move(Stone.WHITE, 12));
+    goGame.updateState(new Move(Stone.BLACK, 31));
+    goGame.updateState(new Move(Stone.WHITE, 3));
+    goGame.updateState(new Move(Stone.BLACK, 40));
+    goGame.updateState(new Move(Stone.WHITE, 0));
+
+    System.out.println(goGame.board.currentPosition.toString());
+    assertEquals(7, goGame.board.currentPosition.score.scoreWhite);
+  }
 }
