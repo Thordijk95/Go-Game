@@ -2,7 +2,6 @@ package game.player;
 
 import connectivity.SocketConnection;
 import connectivity.client.PlayerConnection;
-import connectivity.server.ConnectionHandler;
 import game.Move;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,12 +9,12 @@ import java.net.InetAddress;
 public interface Player {
   String getUsername();
   void setPlayerConnection(InetAddress inetAddress, int port) throws IOException;
-  PlayerConnection getPlayerConnection();
+  SocketConnection getPlayerConnection();
   void setUsername(String username);
   void sendMessage(String message);
   void sendMove(String message);
 
-  boolean isConnected();
+  boolean getConnected();
 
   void setConnected();
   void setDisconnected();
@@ -34,4 +33,13 @@ public interface Player {
   void setQueued();
   boolean getQueued();
 
+  void setLoggedIn();
+  boolean getLoggedIn();
+
+  void setInGame();
+  boolean getInGame();
+
+  void handleError();
+
+  void gameOver();
 }

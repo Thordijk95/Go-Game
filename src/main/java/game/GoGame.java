@@ -20,6 +20,7 @@ public class GoGame implements Game{
   private List<Position> previousPositions = new ArrayList<>();
   // Hashmap that links the ith positions to the score
   private HashMap<Integer, Score> scores = new HashMap<>();
+  private HashMap<Score, List<Integer>> scorePositionHashMap = new HashMap<>();
 
   /**
    * When a game is started the logic is added and the board is created.
@@ -49,6 +50,7 @@ public class GoGame implements Game{
     Score score = logic.score(board.currentPosition);
     board.currentPosition.score = score;
     scores.put(scores.size(), score);
+    updateScorePositionHashMap(score);
   }
 
   @Override
@@ -127,5 +129,16 @@ public class GoGame implements Game{
   @Override
   public ConnectionHandler getAtTurn() {
     return turn;
+  }
+
+  private void updateScorePositionHashMap(Score score) {
+    List<Integer> newHashes = new ArrayList<>();
+    // get the list corresponding to the score
+    List<Integer> hashes = scorePositionHashMap.get(score);
+    if (hashes != null) {
+       newHashes.addAll(hashes);
+    }
+    newHashes.add(board.currentPosition.hash);
+    scorePositionHashMap.put(score, newHashes);
   }
 }

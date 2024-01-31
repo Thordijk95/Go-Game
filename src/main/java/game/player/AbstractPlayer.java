@@ -1,5 +1,6 @@
 package game.player;
 
+import connectivity.SocketConnection;
 import connectivity.client.PlayerConnection;
 import game.Board;
 import game.Move;
@@ -12,6 +13,8 @@ import java.net.UnknownHostException;
 public abstract class AbstractPlayer implements Player{
   public boolean queued = false;
   private boolean connected = false;
+  private boolean logggedIn = false;
+  private boolean inGame = false;
   public PlayerConnection playerConnection;
   public String username;
   public Stone stone;
@@ -42,7 +45,7 @@ public abstract class AbstractPlayer implements Player{
   public abstract void sendMove(String message);
 
   @Override
-  public boolean isConnected() {
+  public boolean getConnected() {
     return connected;
   }
 
@@ -98,6 +101,41 @@ public abstract class AbstractPlayer implements Player{
   @Override
   public PlayerConnection getPlayerConnection() {
     return playerConnection;
+  }
+
+  @Override
+  public void setLoggedIn() {
+    logggedIn = !logggedIn;
+  }
+
+  @Override
+  public boolean getLoggedIn() {
+    return logggedIn;
+  }
+
+  @Override
+  public void handleReject() {
+
+  }
+
+  @Override
+  public void handleError() {
+    // do nothing
+  }
+
+  @Override
+  public void gameOver() {
+
+  }
+
+  @Override
+  public void setInGame() {
+    inGame = !inGame;
+  }
+
+  @Override
+  public boolean getInGame() {
+    return inGame;
   }
 }
 
