@@ -132,6 +132,7 @@ public class GoServer extends SocketServer {
     for (ConnectionHandler player : game.players) {
       player.sendMessage(GoProtocol.GAME_STARTED + "~" + players.getFirst().getUsername() + "," + players.getLast().getUsername() + "~" + gameDimension);
     }
+    players.getFirst().sendMessage("MAKE MOVE");
   }
 
   protected void receiveMove(Move move, ConnectionHandler player) {

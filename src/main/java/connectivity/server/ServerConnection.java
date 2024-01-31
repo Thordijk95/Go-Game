@@ -59,8 +59,7 @@ public class ServerConnection extends SocketConnection {
    */
   @Override
   protected void handleMessage(String message) {
-    System.out.println("handleMessage ServerConnection");
-    System.out.println("received: " + message);
+    System.out.println("[SERVER] " + message);
     String[] substrings = message.split(GoProtocol.SEPARATOR);
     try {
       switch (substrings[0]) {
