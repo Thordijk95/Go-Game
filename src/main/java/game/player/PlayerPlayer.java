@@ -1,19 +1,24 @@
 package game.player;
 
 import connectivity.client.PlayerConnection;
+import connectivity.client.PlayerTui;
+import game.Board;
 import game.Move;
+import game.Stone;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 public class PlayerPlayer extends game.player.AbstractPlayer {
-  private PlayerConnection playerConnection;
 
   public PlayerPlayer() { }
 
   public PlayerPlayer(String username) {
     super.setUsername(username);
   }
+
+  public PlayerTui playerTui;
 
   @Override
   public void sendMessage(String message) {
@@ -48,7 +53,11 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
 
   @Override
   public Move determineMove() {
-    return null;
+    if (playerTui != null) {
+      return playerTui.determinMoveTui();
+    } else {
+      return new Move(stone, new Random().nextInt(playerBoard.dimension*playerBoard.dimension));
+    }
   }
 
   @Override

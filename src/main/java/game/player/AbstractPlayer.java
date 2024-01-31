@@ -12,13 +12,13 @@ import java.net.UnknownHostException;
 public abstract class AbstractPlayer implements Player{
   public boolean queued = false;
   private boolean connected = false;
-  private PlayerConnection playerConnection;
-  private String username;
-  private Stone stone;
+  public PlayerConnection playerConnection;
+  public String username;
+  public Stone stone;
 
-  private Position position;
+  public Position position;
 
-  private Board playerBoard;
+  public Board playerBoard;
 
   public AbstractPlayer() {};
 
