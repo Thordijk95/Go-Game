@@ -8,14 +8,15 @@ public class Position {
   // The state of the position is stored as a board
   private List<Intersection> intersectionList;
   public Score score;
+  public int hash;
 
   public Position(int dimension) {
     intersectionList = new ArrayList<>();
     for (int i = 0; i < dimension*dimension; i++) {
-
       intersectionList.add(new Intersection(i));
     }
     score = new Score(0,0);
+    hash = toString().hashCode();
   }
 
   /**
@@ -34,12 +35,18 @@ public class Position {
         intersectionList.add(oldPosition.intersectionList.get(i));
       }
     }
+    hash = toString().hashCode();
   }
 
   public Intersection getIntersection(int index) {
     return intersectionList.get(index);
   }
 
+  /**
+   * Set an intersection using its index and the required stone value.
+   * @param index of the intersection being set.
+   * @param stone of the stone to place at the intersection.
+   */
   public void setIntersection(int index, Stone stone) {
     intersectionList.get(index).stone = stone;
   }
@@ -82,6 +89,11 @@ public class Position {
     return position;
   }
 
+  /**
+   * Builds a border at the top of the board.
+   * @param dimension of the board
+   * @return the string that looks like an edge of a board
+   */
   private String upperBorder(int dimension) {
     String line = "|";
     for (int j = 0; j < dimension; j++) {
@@ -90,6 +102,12 @@ public class Position {
     line = String.format(line + "|\n");
     return line;
   }
+
+  /**
+   * Builds a border in the middle of the board.
+   * @param dimension of the board
+   * @return the string that looks like line on the board
+   */
   private String border(int dimension) {
     String line = "|";
     for (int i = 0; i < dimension; i++) {
@@ -101,6 +119,11 @@ public class Position {
     line = String.format(line + "|");
     return line;
   }
+  /**
+   * Builds a border at the bottom of the board.
+   * @param dimension of the board
+   * @return the string that looks like an edge of a board
+   */
   private String lowerBorder(int dimension) {
     String line = "|";
     for (int j = 0; j < dimension; j++) {
@@ -109,6 +132,13 @@ public class Position {
     line = String.format(line + "|");
     return line;
   }
+
+  /**
+   * Convert the value of a stone to an icon that represents it.
+   * @param stone to convert
+   * @param i index of the stone, empty intersection are indicated by a number
+   * @return the string.
+   */
   private String stoneToString(Stone stone, int i) {
     String white = " ● |";
     String black = " ○ |";
@@ -116,19 +146,23 @@ public class Position {
     switch (stone) {
       case BLACK -> { return black; }
       case WHITE -> { return white; }
-      default -> {return noneToNumber(none, i); }
+      default -> {return noneToNumber(i); }
     }
   }
 
-  private String noneToNumber (String stone, int i) {
-    if (stone.equals(" + |")) {
-      if (i < 10) {
-        stone = String.format(" " + i + " |");
-      } else if (i < 100) {
-        stone = String.format(" " + i + "|");
-      } else {
-        stone = String.format(i + "|");
-      }
+  /**
+   * Convert a none value to its index with a border.
+   * @param i index of the intersection
+   * @return the properly configured string
+   */
+  private String noneToNumber (int i) {
+    String stone;
+    if (i < 10) {
+      stone = String.format(" " + i + " |");
+    } else if (i < 100) {
+      stone = String.format(" " + i + "|");
+    } else {
+      stone = String.format(i + "|");
     }
     return stone;
   }
