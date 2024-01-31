@@ -14,6 +14,14 @@ public class GoServerTui {
     serverTui.run();
   }
 
+  private void acceptConnections() {
+    try {
+      goServer.acceptConnections();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public void run() {
     Scanner input = new Scanner(System.in);
     System.out.println("Please provide the port where to start the server:");
@@ -21,14 +29,15 @@ public class GoServerTui {
     try {
       goServer = new GoServer(port);
       System.out.println("Server opened port " + port);
-      goServer.acceptConnections();     // Start accepting incoming connections
+      new Thread(this::acceptConnections).start();     // Start accepting incoming connections
     } catch (IOException e) {
       System.out.println("Starting the server failed");
       e.printStackTrace();
     }
     help();
-    String lastMessage = input.nextLine();
+    String lastMessage = "";
     while (!lastMessage.equals("--quit")) {
+      lastMessage = input.next();
       if (!lastMessage.equals("")) {
         String[] splitString = input.nextLine().replace(" ", "").split("~");
         switch (splitString[0]) {
@@ -41,7 +50,6 @@ public class GoServerTui {
             help();
         }
       }
-      System.out.println("Provide the next input");
     }
   }
 

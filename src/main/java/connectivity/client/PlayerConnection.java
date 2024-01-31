@@ -81,7 +81,7 @@ public class PlayerConnection extends SocketConnection {
           sendMove(player.determineMove());
       }
       case GoProtocol.MOVE -> {
-        // check if the move was made by you or the opponent
+        // Update your board with any move reflected by the server
         int index = Integer.parseInt(splitString[1]);
         Stone stone = splitString[2].equalsIgnoreCase("black") ? Stone.BLACK : Stone.WHITE;
         player.updateState(new Move(stone, index));
