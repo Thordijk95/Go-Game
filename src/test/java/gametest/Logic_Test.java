@@ -1,6 +1,7 @@
 package gametest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import connectivity.server.ConnectionHandler;
 import game.GoGame;
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test;
 public class Logic_Test {
 
   public int dimension;
-  public Game goGame;
+  public GoGame goGame;
   public GoLogic logic;
   public List<ConnectionHandler> players = new ArrayList<>();
   public ConnectionHandler player1 = new ConnectionHandler();
@@ -27,12 +28,12 @@ public class Logic_Test {
   @BeforeEach
   void setup() {
     logic = new GoLogic();
+    players.add(player1);
+    players.add(player2);
   }
 
   @Test
   void testClusters() {
-    players.add(player1);
-    players.add(player2);
     goGame = new GoGame(dimension, players);
     dimension = 9;
     logic.dimension = dimension;
@@ -214,5 +215,61 @@ public class Logic_Test {
     System.out.println(position4.toString());
     assertEquals(31, position4.score.scoreBlack);
     assertEquals(9, position4.score.scoreWhite);
+  }
+
+  @Test
+  void testKoRule() {
+    dimension = 9;
+    logic.dimension = dimension;
+    goGame = new GoGame(dimension, players);
+    goGame.updateState(new Move(Stone.BLACK, 9));
+    goGame.updateState(new Move(Stone.BLACK, 10));
+    goGame.updateState(new Move(Stone.BLACK, 11));
+    goGame.updateState(new Move(Stone.BLACK, 21));
+    goGame.updateState(new Move(Stone.BLACK, 31));
+    goGame.updateState(new Move(Stone.BLACK, 32));
+    goGame.updateState(new Move(Stone.BLACK, 41));
+    goGame.updateState(new Move(Stone.BLACK, 51));
+    goGame.updateState(new Move(Stone.BLACK, 60));
+    goGame.updateState(new Move(Stone.BLACK, 69));
+    goGame.updateState(new Move(Stone.BLACK, 78));
+    goGame.updateState(new Move(Stone.BLACK, 24));
+    goGame.updateState(new Move(Stone.BLACK, 16));
+    goGame.updateState(new Move(Stone.BLACK, 8));
+
+    goGame.updateState(new Move(Stone.WHITE, 45));
+    goGame.updateState(new Move(Stone.WHITE, 46));
+    goGame.updateState(new Move(Stone.WHITE, 47));
+    goGame.updateState(new Move(Stone.WHITE, 56));
+    goGame.updateState(new Move(Stone.WHITE, 66));
+    goGame.updateState(new Move(Stone.WHITE, 76));
+
+    Position position4 = new Position(dimension);
+    position4.setIntersection(9, Stone.BLACK);
+    position4.setIntersection(10, Stone.BLACK);
+    position4.setIntersection(11, Stone.BLACK);
+    position4.setIntersection(21, Stone.BLACK);
+    position4.setIntersection(31, Stone.BLACK);
+    position4.setIntersection(32, Stone.BLACK);
+    position4.setIntersection(41, Stone.BLACK);
+    position4.setIntersection(51, Stone.BLACK);
+    position4.setIntersection(60, Stone.BLACK);
+    position4.setIntersection(69, Stone.BLACK);
+    position4.setIntersection(78, Stone.BLACK);
+    position4.setIntersection(24, Stone.BLACK);
+    position4.setIntersection(16, Stone.BLACK);
+    position4.setIntersection(8, Stone.BLACK);
+
+    position4.setIntersection(45, Stone.WHITE);
+    position4.setIntersection(46, Stone.WHITE);
+    position4.setIntersection(47, Stone.WHITE);
+    position4.setIntersection(56, Stone.WHITE);
+    position4.setIntersection(66, Stone.WHITE);
+    position4.setIntersection(76, Stone.WHITE);
+
+    position4.score = logic.score(position4);
+    position4.hash = position4.toString().hashCode();
+
+    assertFalse(logic.checkKoRule(position4, goGame.scorePositionHashMap));
   }
 }

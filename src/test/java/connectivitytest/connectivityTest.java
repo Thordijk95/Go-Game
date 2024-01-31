@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 public class connectivityTest {
 
-  private SocketServer goServer;
+  private GoServer goServer;
 
   @BeforeEach
   void setup() throws IOException {
