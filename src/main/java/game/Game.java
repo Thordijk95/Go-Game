@@ -34,4 +34,5 @@ public interface Game{
 
   ConnectionHandler getAtTurn() throws NoTurnAssignedException;
 
+  int getDimension();
 }

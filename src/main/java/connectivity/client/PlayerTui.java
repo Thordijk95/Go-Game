@@ -26,13 +26,16 @@ public class PlayerTui {
     while (!connection) {
       System.out.println("Please provide a username: ");
       player.setUsername(input.nextLine());
-      System.out.println("Please provide the InetAddress where to make a connection: ");
       InetAddress inetAddress = null;
-      try {
-        inetAddress = InetAddress.getByName(input.nextLine());
-      } catch (UnknownHostException e) {
-        System.out.println("Host unknown.");
-        e.printStackTrace();
+      while (true) {
+        try {
+          System.out.println("Please provide the InetAddress where to make a connection: ");
+          inetAddress = InetAddress.getByName(input.nextLine());
+          break;
+        } catch (UnknownHostException e) {
+          System.out.println("Host unknown.");
+          e.printStackTrace();
+        }
       }
 
       System.out.println("Please provide the port where to connect on: ");
@@ -74,7 +77,8 @@ public class PlayerTui {
 
   public Move determinMoveTui() {
     Scanner input = new Scanner(System.in);
-    int index = input.nextInt();
+    String[] splitString = input.nextLine().split("~");
+    int index = Integer.parseInt(splitString[1]);
     Stone stone = player.getColor() == "black" ? Stone.BLACK : Stone.WHITE;
     return new Move(stone, index);
   }

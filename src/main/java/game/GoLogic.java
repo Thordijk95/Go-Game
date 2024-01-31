@@ -91,7 +91,8 @@ public class GoLogic {
     if( position.getIntersection(move.index).stone != Stone.NONE ) {
       throw new IntersectionOccupiedException();
     }
-    if (!checkKoRule(position, oldPositions)){
+    Position potentialPosition = new Position(position, move);
+    if (!checkKoRule(potentialPosition, oldPositions)){
       throw new KoRuleException();
     }
 

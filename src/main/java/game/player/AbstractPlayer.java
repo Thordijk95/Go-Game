@@ -3,6 +3,8 @@ package game.player;
 import connectivity.SocketConnection;
 import connectivity.client.PlayerConnection;
 import game.Board;
+import game.Game;
+import game.GoGame;
 import game.Move;
 import game.Position;
 import game.Stone;
@@ -21,14 +23,13 @@ public abstract class AbstractPlayer implements Player{
 
   public Position position;
 
-  public Board playerBoard;
+  public Game goGame;
 
   public AbstractPlayer() {};
 
   public AbstractPlayer(String username) {
     this.username = username;
   }
-
   @Override
   public String getUsername() {
     return username;
@@ -77,12 +78,12 @@ public abstract class AbstractPlayer implements Player{
 
   @Override
   public void initializeState(int boardDimensions) {
-    playerBoard = new Board(boardDimensions);
+    goGame = new GoGame(boardDimensions, this);
   }
 
   @Override
   public void updateState(Move move) {
-    position = new Position(position, move);
+    goGame.updateState(move);
   }
 
   @Override
@@ -127,11 +128,11 @@ public abstract class AbstractPlayer implements Player{
   public void gameOver() {
 
   }
-
   @Override
   public void setInGame() {
     inGame = !inGame;
   }
+
 
   @Override
   public boolean getInGame() {

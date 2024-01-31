@@ -2,7 +2,11 @@ package game;
 
 import com.nedap.go.exceptions.InvalidMoveException;
 import com.nedap.go.exceptions.InvalidPlayerTurnException;
+import com.nedap.go.gui.GoGui;
+import com.nedap.go.gui.GoGuiIntegrator;
+import com.nedap.go.gui.InvalidCoordinateException;
 import connectivity.server.ConnectionHandler;
+import game.player.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +25,16 @@ public class GoGame implements Game{
   // Hashmap with a list of Hashed positions that can be lookedup using their score.
   public HashMap<String, List<Integer>> scorePositionHashMap = new HashMap<>();
 
+  private GoGui goGui;
+
+  public GoGame(int dimension, Player player) {
+    board = new Board(dimension);
+    logic.dimension = dimension;
+    consecutivePasses = 0;
+    goGui = new GoGuiIntegrator(true, false, dimension);
+    goGui.startGUI();
+  }
+
   /**
    * When a game is started the logic is added and the board is created.
    * Every game has a logic list of players represented by the connection handlers on the server side
@@ -33,6 +47,8 @@ public class GoGame implements Game{
     turn = players.getFirst();
     logic.dimension = dimension;
     consecutivePasses = 0;
+    goGui = new GoGuiIntegrator(true, false, dimension);
+    goGui.startGUI();
   }
 
   /**
@@ -43,6 +59,13 @@ public class GoGame implements Game{
   public void updateState(Move move) {
     // Define the new board position
     board.currentPosition = new Position(board.currentPosition, move);
+    int[] xy = logic.calculateXY(move.index);
+    try {
+      goGui.addStone(xy[0], xy[1], (move.stone == Stone.WHITE));
+    } catch (InvalidCoordinateException e) {
+      System.out.println("Critical error");
+      goGui.stopGUI();
+    }
     // Store the score of the new position
     Score score = logic.score(board.currentPosition);
     board.currentPosition.score = score;
@@ -137,5 +160,10 @@ public class GoGame implements Game{
     }
     newHashes.add(board.currentPosition.hash);
     scorePositionHashMap.put(score, newHashes);
+  }
+
+  @Override
+  public int getDimension(){
+    return board.dimension;
   }
 }

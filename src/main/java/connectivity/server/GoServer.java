@@ -180,7 +180,7 @@ public class GoServer extends SocketServer {
         throw new InvalidPlayerTurnException();
       }
       if (game != null && game.validateMove(move, player) ) {
-        informOpponent(move, game.getOtherPlayer(player));
+        informPlayers(move, player, game.getOtherPlayer(player));
         game.updateState(move);
         switchTurn(game);
       }
@@ -281,7 +281,8 @@ public class GoServer extends SocketServer {
     player.sendMoveRefused(message);
   }
 
-  private void informOpponent(Move move, ConnectionHandler opponent) {
+  private void informPlayers(Move move, ConnectionHandler player, ConnectionHandler opponent) {
+    player.sendMove(move);
     opponent.sendMove(move);
   }
 

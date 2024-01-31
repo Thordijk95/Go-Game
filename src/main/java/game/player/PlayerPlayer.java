@@ -56,7 +56,7 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
     if (playerTui != null) {
       return playerTui.determinMoveTui();
     } else {
-      return new Move(stone, new Random().nextInt(playerBoard.dimension*playerBoard.dimension));
+      return new Move(stone, new Random().nextInt((int) Math.pow(super.goGame.getDimension(), 2)));
     }
   }
 

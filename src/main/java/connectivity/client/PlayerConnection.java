@@ -95,6 +95,7 @@ public class PlayerConnection extends SocketConnection {
         player.setQueued();
         int boardDimension = Integer.parseInt(splitString[2]);
         player.initializeState(boardDimension);
+        player.setInGame();
         if (player.getUsername().equals(username1)) {
           player.setColor("black");
         } else {
