@@ -1,5 +1,7 @@
 package connectivity.client;
 
+import game.Move;
+import game.Stone;
 import game.player.*;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,6 +22,7 @@ public class PlayerTui {
   public void run() {
     Scanner input = new Scanner(System.in);
     PlayerPlayer player = new PlayerPlayer();
+    player.playerTui = this;
     while (!connection) {
       System.out.println("Please provide the InetAddress where to make a connection: ");
       InetAddress inetAddress = null;
@@ -62,8 +65,16 @@ public class PlayerTui {
     System.out.println("QUEUE to notify the server you want to placed in a queue");
     System.out.println("MOVE ~ <N> to play a stone at index n on the board");
     System.out.println("MOVE ~ <(X,Y)> to play a stone at the coordinate x, y");
-    System.out.println("MOVE ~ Pass to skip a turn");
-    System.out.println("MOVE ~ Resign to resign from the game");
+    System.out.println("PASS");
+    System.out.println("RESIGN");
     System.out.println("ERROR ~ <error message> to communicate an error to the server");
   }
+
+  public Move determinMoveTui() {
+    Scanner input = new Scanner(System.in);
+    int index = input.nextInt();
+    Stone stone = player.getColor() == "black" ? Stone.BLACK : Stone.WHITE;
+    return new Move(stone, index);
+  }
+
 }

@@ -55,6 +55,7 @@ public class PlayerConnection extends SocketConnection {
    */
   @Override
   public void handleMessage(String message) {
+    System.out.println("[CLIENT] " + message);
     String[] splitString = message.split("~");
 
     switch (splitString[0]) {
@@ -70,32 +71,25 @@ public class PlayerConnection extends SocketConnection {
       }
       case GoProtocol.ACCEPTED -> {
         player.setConnected();
-        System.out.println(message);
       }
       case GoProtocol.REJECTED -> {
-        System.out.println(message);
         player.handleReject();
       }
       case GoProtocol.QUEUED -> {
         player.setQueued();
-        System.out.println(message);
       }
       case GoProtocol.MAKE_MOVE -> {
-        if (splitString[1].equals(player.getUsername())) {
-          player.determineMove();
-        }
+          sendMove(player.determineMove());
       }
       case GoProtocol.MOVE -> {
         int index = Integer.parseInt(splitString[1]);
         Stone stone = splitString[2].equalsIgnoreCase("black") ? Stone.BLACK : Stone.WHITE;
         player.updateState(new Move(stone, index));
       }
-      case GoProtocol.HELLO -> {
-        System.out.println(message);   // Acknowledge connection
+      case GoProtocol.HELLO -> { // Acknowledge connection
         player.setConnected();
       }
       case GoProtocol.GAME_STARTED -> {
-        System.out.println(splitString[1]);
         String[] names = splitString[1].split(",");
         String username1 = names[0];
         player.setQueued();
@@ -127,5 +121,9 @@ public class PlayerConnection extends SocketConnection {
   @Override
   public boolean sendMessage(String message) {
     return super.sendMessage(message);
+  }
+
+  public void sendMove(Move move){
+    super.sendMessage(String.format(GoProtocol.MOVE + "~" + move.index + "~" + move.stone.toString()));
   }
 }
