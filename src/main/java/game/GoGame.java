@@ -89,7 +89,7 @@ public class GoGame implements Game{
   }
 
   @Override
-  public boolean validateMove(Move move, ConnectionHandler player) throws InvalidMoveException {
+  public boolean validateMove(Move move) throws InvalidMoveException {
     // Check if the sender of the move is actually the one at play, if not return false
     return logic.validMove(scorePositionHashMap, board.currentPosition, move);
   }

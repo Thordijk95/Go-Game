@@ -9,10 +9,8 @@ import java.net.InetAddress;
 public interface Player {
   String getUsername();
   void setPlayerConnection(InetAddress inetAddress, int port) throws IOException;
-  SocketConnection getPlayerConnection();
   void setUsername(String username);
   void sendMessage(String message);
-  void sendMove(String message);
 
   boolean getConnected();
 
@@ -42,4 +40,8 @@ public interface Player {
   void handleError();
 
   void gameOver();
+
+  void automatedLogin();
+
+  void automatedQueue();
 }

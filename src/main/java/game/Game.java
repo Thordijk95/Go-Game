@@ -14,7 +14,7 @@ public interface Game{
 
   String getStateString();
   Position getStatePosition();
-  boolean validateMove(Move move, ConnectionHandler player) throws InvalidMoveException;
+  boolean validateMove(Move move) throws InvalidMoveException;
 
   void updateState(Move move);
 

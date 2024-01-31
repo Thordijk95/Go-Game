@@ -24,9 +24,7 @@ public abstract class AbstractPlayer implements Player{
   public Position position;
 
   public Game goGame;
-
   public AbstractPlayer() {};
-
   public AbstractPlayer(String username) {
     this.username = username;
   }
@@ -34,17 +32,12 @@ public abstract class AbstractPlayer implements Player{
   public String getUsername() {
     return username;
   }
-
   @Override
   public void setUsername(String username) {
     this.username = username;
   }
   @Override
   public abstract void sendMessage(String message);
-
-  @Override
-  public abstract void sendMove(String message);
-
   @Override
   public boolean getConnected() {
     return connected;
@@ -54,7 +47,6 @@ public abstract class AbstractPlayer implements Player{
   public void setConnected() {
     connected = true;
   }
-
   @Override
   public void setDisconnected() {
     connected = false;
@@ -100,11 +92,6 @@ public abstract class AbstractPlayer implements Player{
   public abstract void setPlayerConnection(InetAddress inetAddress, int port) throws IOException;
 
   @Override
-  public PlayerConnection getPlayerConnection() {
-    return playerConnection;
-  }
-
-  @Override
   public void setLoggedIn() {
     logggedIn = !logggedIn;
   }
@@ -138,5 +125,11 @@ public abstract class AbstractPlayer implements Player{
   public boolean getInGame() {
     return inGame;
   }
+
+  @Override
+  public abstract void automatedLogin();
+
+  @Override
+  public abstract void automatedQueue();
 }
 

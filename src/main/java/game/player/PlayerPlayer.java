@@ -26,11 +26,6 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
   }
 
   @Override
-  public void sendMove(String message) {
-
-  }
-
-  @Override
   public void setPlayerConnection(InetAddress inetAddress, int port) throws IOException {
     try {
       playerConnection = new PlayerConnection(inetAddress, port);
@@ -62,6 +57,16 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
 
   @Override
   public void handleReject() {
+
+  }
+
+  @Override
+  public void automatedLogin() {
+
+  }
+
+  @Override
+  public void automatedQueue() {
 
   }
 }

@@ -39,10 +39,14 @@ public class GoServerTui {
     while (!lastMessage.equals("--quit")) {
       lastMessage = input.next();
       if (!lastMessage.equals("")) {
-        String[] splitString = input.nextLine().replace(" ", "").split("~");
+        String[] splitString = lastMessage.replace(" ", "").split("~");
         switch (splitString[0]) {
           case "--dimension":
-            goServer.gameDimension = dimension;
+            try {
+              goServer.gameDimension = Integer.parseInt(splitString[0]);
+            } catch (NumberFormatException e) {
+              System.out.println("not a number format, try again");
+            }
           case "--help":
             help();
           default:

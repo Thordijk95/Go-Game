@@ -4,6 +4,7 @@ import connectivity.protocol.GoProtocol;
 import connectivity.SocketConnection;
 import game.Move;
 import game.Stone;
+import game.player.AIPlayer;
 import game.player.Player;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -70,6 +71,9 @@ public class PlayerConnection extends SocketConnection {
       }
       case GoProtocol.ACCEPTED -> {
         player.setLoggedIn();
+        if (player instanceof AIPlayer) {
+          player.automatedQueue();
+        }
       }
       case GoProtocol.REJECTED -> {
         player.handleReject();
@@ -78,7 +82,7 @@ public class PlayerConnection extends SocketConnection {
         player.setQueued();
       }
       case GoProtocol.MAKE_MOVE -> {
-          player.determineMove();
+        player.determineMove();
       }
       case GoProtocol.MOVE -> {
         // Update your board with any move reflected by the server
@@ -88,6 +92,9 @@ public class PlayerConnection extends SocketConnection {
       }
       case GoProtocol.HELLO -> { // Acknowledge connection
         player.setConnected();
+        if (player instanceof AIPlayer) {
+          player.automatedLogin();
+        }
       }
       case GoProtocol.GAME_STARTED -> {
         String[] names = splitString[1].split(",");

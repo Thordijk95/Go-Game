@@ -179,7 +179,7 @@ public class GoServer extends SocketServer {
       if (game.getAtTurn() != player) {
         throw new InvalidPlayerTurnException();
       }
-      if (game != null && game.validateMove(move, player)) {
+      if (game != null && game.validateMove(move)) {
         informPlayers(move, player, game.getOtherPlayer(player));
         game.updateState(move);
         switchTurn(game);
