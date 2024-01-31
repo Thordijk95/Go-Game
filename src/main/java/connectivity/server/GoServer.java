@@ -10,7 +10,6 @@ import connectivity.SocketServer;
 import connectivity.protocol.GoProtocol;
 import game.*;
 
-import game.player.OnlinePlayer;
 import game.player.Player;
 import java.io.IOException;
 import java.net.Socket;

@@ -98,7 +98,7 @@ public class ServerConnection extends SocketConnection {
               "Message does not adhere to the protocol."); // invalid entry, do nothing
         }
       }
-    } catch (InvalidMessageException e) {
+    } catch (InvalidMessageException | NumberFormatException e) {
       e.printStackTrace();
       sendMessage(GoProtocol.ERROR + "~Invalid message format");
     }
