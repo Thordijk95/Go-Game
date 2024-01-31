@@ -1,5 +1,7 @@
 package game;
 
+import com.nedap.go.exceptions.InvalidMoveException;
+import com.sun.prism.shape.ShapeRep.InvalidationType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class GoLogic {
     if(stoneClusterHashMap.get(Stone.NONE) != null) {
       for (Cluster cluster : stoneClusterHashMap.get(Stone.NONE)) {
         findBorderNoneClusters(position, cluster);
-        // If only one color is found a the border of the none-cluster find cluster it is a territory of.
+        // If only one color is found a border of the none-cluster find cluster it is a territory of.
         if (cluster.borderStones.size() == 1) {
           switch (cluster.borderStones.getFirst()) {
             case BLACK -> assignNoneCluster(stoneClusterHashMap.get(Stone.BLACK), cluster);
@@ -77,10 +79,13 @@ public class GoLogic {
    * @return if the move is valid.
    */
   //TODO check self capture
-  protected boolean validMove(List<Position> oldPositions, Position position, Move move) {
+  protected boolean validMove(List<Position> oldPositions, Position position, Move move) throws InvalidMoveException {
     // Check if the intersection is unoccupied
-    return position.getIntersection(move.index).stone == Stone.NONE && checkKoRule(position,
-        oldPositions);
+    if( position.getIntersection(move.index).stone == Stone.NONE && checkKoRule(position, oldPositions)) {
+      return true;
+    } else {
+      throw new InvalidMoveException();
+    }
   }
 
   /**

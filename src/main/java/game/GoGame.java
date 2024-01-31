@@ -1,5 +1,7 @@
 package game;
 
+import com.nedap.go.exceptions.InvalidMoveException;
+import com.nedap.go.exceptions.InvalidPlayerTurnException;
 import connectivity.server.ConnectionHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,13 +62,9 @@ public class GoGame implements Game{
   }
 
   @Override
-  public boolean validateMove(Move move, ConnectionHandler player) {
+  public boolean validateMove(Move move, ConnectionHandler player) throws InvalidMoveException {
     // Check if the sender of the move is actually the one at play, if not return false
-    if (player != turn) {
-      return false;
-    } else { // validate the move based on the logic of the game go
-      return logic.validMove(previousPositions, board.currentPosition, move);
-    }
+    return logic.validMove(previousPositions, board.currentPosition, move);
   }
 
   @Override
@@ -124,5 +122,10 @@ public class GoGame implements Game{
     if (players.getFirst() == player) {
       return players.getLast();
     } else { return players.getFirst(); }
+  }
+
+  @Override
+  public ConnectionHandler getAtTurn() {
+    return turn;
   }
 }

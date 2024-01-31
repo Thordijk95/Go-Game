@@ -1,9 +1,12 @@
 package game;
 
+import com.nedap.go.exceptions.InvalidMoveException;
+import com.nedap.go.exceptions.NoTurnAssignedException;
 import connectivity.server.ConnectionHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface Game{
 
@@ -11,7 +14,7 @@ public interface Game{
 
   String getStateString();
   Position getStatePosition();
-  boolean validateMove(Move move, ConnectionHandler player);
+  boolean validateMove(Move move, ConnectionHandler player) throws InvalidMoveException;
 
   void updateState(Move move);
 
@@ -29,5 +32,6 @@ public interface Game{
   void gameOverScore();
   void gameOverResign(ConnectionHandler player);
 
+  ConnectionHandler getAtTurn() throws NoTurnAssignedException;
 
 }
