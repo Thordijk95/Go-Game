@@ -58,14 +58,19 @@ public class GoGame implements Game{
   @Override
   public void updateState(Move move) {
     // Define the new board position
-    board.currentPosition = new Position(board.currentPosition, move);
+    Position potentialPosition = new Position(board.currentPosition, move);
+    List<int[]> capturedStones = logic.checkCaptures(potentialPosition, move.stone);
     int[] xy = logic.calculateXY(move.index);
     try {
       goGui.addStone(xy[0], xy[1], (move.stone == Stone.WHITE));
+      for (int[] capture : capturedStones) {
+        goGui.removeStone(capture[0], capture[1]);
+      }
     } catch (InvalidCoordinateException e) {
       System.out.println("Critical error");
       goGui.stopGUI();
     }
+    board.currentPosition = potentialPosition;
     // Store the score of the new position
     Score score = logic.score(board.currentPosition);
     board.currentPosition.score = score;

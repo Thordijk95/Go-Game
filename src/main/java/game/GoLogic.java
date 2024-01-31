@@ -4,7 +4,6 @@ import com.nedap.go.exceptions.IntersectionOccupiedException;
 import com.nedap.go.exceptions.InvalidMoveException;
 import com.nedap.go.exceptions.KoRuleException;
 import com.nedap.go.exceptions.MovePositionOutOfBounds;
-import com.sun.prism.shape.ShapeRep.InvalidationType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -119,14 +118,65 @@ public class GoLogic {
     return true;
   }
 
-//  public boolean checkSelfCapture(Position potentialPosition, Move move) {
-//    // check if all neighbors are either unoccupied or of the same color
-//    // Self capture is allowed provided that it resulted in a capture.
-//    List<int[]> neighbors = findNeighborsStraight(calculateXY(move.index));
-//    for (int[] neighbor : neighbors ) {
-//      if (potentialPosition.getIntersection(neighbor).stone ==
-//    }
-//  }
+  public List<int[]> checkCaptures(Position potentialPosition, Stone stone) {
+    HashMap<Stone, List<Cluster>> clusters = findClusters(potentialPosition);
+    List<Cluster> clusterPlayerAtTurn = clusters.get(stone);
+    List<Cluster> clusterPlayerNotAtTurn = clusters.get(opponent(stone));
+    // Find the captures, start with the player that played the move, in case of self capture
+    // resulting in capture this is caught automatically.
+    List<int[]> capturedStones = findCaptures(potentialPosition, clusterPlayerAtTurn);
+    if (!capturedStones.isEmpty()) {
+      for (int[] capture : capturedStones) {
+        potentialPosition.setIntersection(calculateIndex(capture), Stone.NONE);
+      }
+    }
+    List<int[]> capturedStonesOpponent = findCaptures(potentialPosition, clusterPlayerNotAtTurn);
+    for (int[] capture : capturedStonesOpponent) {
+      potentialPosition.setIntersection(calculateIndex(capture), Stone.NONE);
+    }
+    capturedStones.addAll(capturedStonesOpponent);
+    return capturedStones;
+  }
+
+
+  private List<int[]> findCaptures(Position position, List<Cluster> startClusters) {
+    List<int[]> capturedStones = new ArrayList<>();
+    for (Cluster cluster : startClusters) {
+      List<int[]> capturedByCluster = new ArrayList<>();
+      for (int[] borderStone : cluster.coordinatesBorder) {
+        for (int[] neighbor : findAllNeighborsStraight(borderStone)) {
+          if (position.getIntersection(calculateIndex((neighbor))).stone == opponent(cluster.stone)
+          && !containsArray(capturedStones, neighbor)) {
+            capturedByCluster.add(neighbor);
+            if(!recursiveCapture(position, cluster, neighbor, capturedByCluster)) {
+              capturedByCluster.clear();
+              break;
+            }
+          }
+        }
+      }
+      capturedStones.addAll(capturedByCluster);
+    }
+    return capturedStones;
+  }
+
+  public boolean recursiveCapture(Position position, Cluster capturingCluster, int[] startStone, List<int[]> capturedStones) {
+    List<int[]> neighbors = findAllNeighborsStraight(startStone);
+    for (int[] neighbor : neighbors) {
+      if (!containsArray(capturedStones, neighbor)) {
+        Stone neighborStone = position.getIntersection(calculateIndex(neighbor)).stone;
+        if (neighborStone == opponent(capturingCluster.stone)) {
+          capturedStones.add(neighbor);
+          return recursiveCapture(position, capturingCluster, neighbor, capturedStones);
+        } else if (neighborStone == Stone.NONE) {
+          // Found a free edge for the potential capture, so no capture
+          capturedStones.clear();
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 
   /**
    * Find the clusters in a given board position.
@@ -140,18 +190,12 @@ public class GoLogic {
     List<Cluster> noneClusters = new ArrayList<>();
     List<int[]> occupiedIntersections = new ArrayList<>();
 
-    // Parse all the fields in the position
-    // When stone is encountered start recursion from that point to accumulate all the stones
     for(int i = 0; i < dimension * dimension; i++) {
-      // Start of a cluster has been found and the current intersection has not already been evaluated
-      //if (position.getIntersection(i).stone != Stone.NONE && !containsArray(occupiedIntersections, calculateXY(i))) {
       if (!containsArray(occupiedIntersections, calculateXY(i))) {
-        // Find the first neighbors from that point
         Cluster cluster = new Cluster(position.getIntersection(i).stone);
         cluster.intersectionList.add(calculateXY(i));
         recursiveCluster(position, i, cluster, occupiedIntersections);
         findBorder(position, cluster);
-        List<int[]> checkedIntersections = new ArrayList<>();
         switch (cluster.stone) {
           case BLACK -> blackClusters.add(cluster);
           case WHITE -> whiteClusters.add(cluster);
@@ -359,11 +403,23 @@ public class GoLogic {
    * @return if the target is already in the list or not.
    */
   public boolean containsArray(List<int[]> arrayList, int[] target) {
-    for (int[] neighbor : arrayList) {
-      if (Arrays.equals(neighbor, target)) {
-        return true;
+    if (!arrayList.isEmpty()) {
+      for (int[] neighbor : arrayList) {
+        if (Arrays.equals(neighbor, target)) {
+          return true;
+        }
       }
     }
     return false;
+  }
+
+  private Stone opponent(Stone stone) {
+    switch (stone) {
+      case BLACK -> {
+        return Stone.WHITE;
+      }
+      case WHITE -> { return Stone.BLACK; }
+      default -> { return Stone.NONE; }
+    }
   }
 }

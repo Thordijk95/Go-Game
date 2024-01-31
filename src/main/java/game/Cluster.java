@@ -9,6 +9,8 @@ public class Cluster {
   public List<int[]> coordinatesBorder;
   public List<int[]> territoryList;
 
+  public boolean captured;
+
 
   public List<Stone> borderStones;
   public boolean hasFreedom;
