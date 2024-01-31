@@ -49,6 +49,7 @@ public class Position {
    */
   public void setIntersection(int index, Stone stone) {
     intersectionList.get(index).stone = stone;
+    hash = toString().hashCode();
   }
   /**
    * Compare this position to a proposed new position to see if they are equal.

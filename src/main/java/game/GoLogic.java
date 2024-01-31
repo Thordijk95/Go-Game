@@ -1,6 +1,9 @@
 package game;
 
+import com.nedap.go.exceptions.IntersectionOccupiedException;
 import com.nedap.go.exceptions.InvalidMoveException;
+import com.nedap.go.exceptions.KoRuleException;
+import com.nedap.go.exceptions.MovePositionOutOfBounds;
 import com.sun.prism.shape.ShapeRep.InvalidationType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,13 +82,20 @@ public class GoLogic {
    * @return if the move is valid.
    */
   //TODO check self capture
-  protected boolean validMove(List<Position> oldPositions, Position position, Move move) throws InvalidMoveException {
+  protected boolean validMove(HashMap<String, List<Integer>> oldPositions, Position position,
+      Move move) throws InvalidMoveException {
     // Check if the intersection is unoccupied
-    if( position.getIntersection(move.index).stone == Stone.NONE && checkKoRule(position, oldPositions)) {
-      return true;
-    } else {
-      throw new InvalidMoveException();
+    if (move.index > (dimension*dimension-1)) {
+      throw new MovePositionOutOfBounds();
     }
+    if( position.getIntersection(move.index).stone != Stone.NONE ) {
+      throw new IntersectionOccupiedException();
+    }
+    if (!checkKoRule(position, oldPositions)){
+      throw new KoRuleException();
+    }
+
+    return true;
   }
 
   /**
@@ -96,11 +106,14 @@ public class GoLogic {
    * @return if the new position adheres to the KO rule
    */
   //TODO fix this KoRule implementation
-  public boolean checkKoRule(Position newPosition, List<Position> oldPositions) {
-    for (Position oldPosition : oldPositions) {
-      if (oldPosition.equalTo(newPosition)) {
+  public boolean checkKoRule(Position newPosition, HashMap<String, List<Integer>> oldPositions) {
+    try {
+      List<Integer> sameScorePositions = oldPositions.get(newPosition.score.toString());
+      if (sameScorePositions.contains(newPosition.hash)) {
         return false;
       }
+    } catch (NullPointerException e) {
+      //
     }
     return true;
   }

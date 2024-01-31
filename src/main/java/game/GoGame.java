@@ -16,11 +16,10 @@ public class GoGame implements Game{
   public Board board;
   public int consecutivePasses;
   public List<ConnectionHandler> players;
-  // List of old positions
-  private List<Position> previousPositions = new ArrayList<>();
   // Hashmap that links the ith positions to the score
-  private HashMap<Integer, Score> scores = new HashMap<>();
-  private HashMap<Score, List<Integer>> scorePositionHashMap = new HashMap<>();
+  public HashMap<Integer, Score> scores = new HashMap<>();
+  // Hashmap with a list of Hashed positions that can be lookedup using their score.
+  public HashMap<String, List<Integer>> scorePositionHashMap = new HashMap<>();
 
   /**
    * When a game is started the logic is added and the board is created.
@@ -42,15 +41,13 @@ public class GoGame implements Game{
    */
   @Override
   public void updateState(Move move) {
-    // Update the history and the HashMap used for comparing positions
-    previousPositions.add(board.currentPosition);
     // Define the new board position
     board.currentPosition = new Position(board.currentPosition, move);
     // Store the score of the new position
     Score score = logic.score(board.currentPosition);
     board.currentPosition.score = score;
     scores.put(scores.size(), score);
-    updateScorePositionHashMap(score);
+    updateScorePositionHashMap(score.toString());
   }
 
   @Override
@@ -66,7 +63,7 @@ public class GoGame implements Game{
   @Override
   public boolean validateMove(Move move, ConnectionHandler player) throws InvalidMoveException {
     // Check if the sender of the move is actually the one at play, if not return false
-    return logic.validMove(previousPositions, board.currentPosition, move);
+    return logic.validMove(scorePositionHashMap, board.currentPosition, move);
   }
 
   @Override
@@ -131,7 +128,7 @@ public class GoGame implements Game{
     return turn;
   }
 
-  private void updateScorePositionHashMap(Score score) {
+  private void updateScorePositionHashMap(String score) {
     List<Integer> newHashes = new ArrayList<>();
     // get the list corresponding to the score
     List<Integer> hashes = scorePositionHashMap.get(score);

@@ -9,6 +9,7 @@ public class Score {
     this.scoreBlack = scoreBlack;
   }
 
+  @Override
   public String toString() {
     return String.format("Black: " + scoreBlack + "\n" + "White: "+ scoreWhite);
   }
