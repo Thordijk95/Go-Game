@@ -24,6 +24,8 @@ public class PlayerTui {
     PlayerPlayer player = new PlayerPlayer();
     player.playerTui = this;
     while (!connection) {
+      System.out.println("Please provide a username: ");
+      player.setUsername(input.nextLine());
       System.out.println("Please provide the InetAddress where to make a connection: ");
       InetAddress inetAddress = null;
       try {

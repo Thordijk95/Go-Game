@@ -1,6 +1,5 @@
 package connectivity.client;
 
-import com.nedap.go.Go;
 import connectivity.protocol.GoProtocol;
 import connectivity.SocketConnection;
 import game.Move;
@@ -55,7 +54,7 @@ public class PlayerConnection extends SocketConnection {
    */
   @Override
   public void handleMessage(String message) {
-    System.out.println("[CLIENT] " + message);
+    System.out.println("[CLIENT " + player.getUsername() + "] " + message);
     String[] splitString = message.split("~");
 
     switch (splitString[0]) {
@@ -70,7 +69,7 @@ public class PlayerConnection extends SocketConnection {
         }
       }
       case GoProtocol.ACCEPTED -> {
-        player.setConnected();
+        player.setLoggedIn();
       }
       case GoProtocol.REJECTED -> {
         player.handleReject();
@@ -95,7 +94,6 @@ public class PlayerConnection extends SocketConnection {
         String username1 = names[0];
         player.setQueued();
         int boardDimension = Integer.parseInt(splitString[2]);
-        System.out.println(message); // Game started between two players
         player.initializeState(boardDimension);
         if (player.getUsername().equals(username1)) {
           player.setColor("black");
@@ -103,10 +101,12 @@ public class PlayerConnection extends SocketConnection {
           player.setColor("white");
         }
       }
-      case GoProtocol.GAME_OVER -> System.out.println(message); // Game over TODO fix
+      case GoProtocol.GAME_OVER -> {
+        System.out.println(message); // Game over TODO fix
+        player.gameOver();
+      }
       case GoProtocol.ERROR -> {
-        System.out.println("[CLIENT]");
-        System.out.println(message);
+        player.handleError();
       }
     }
   }

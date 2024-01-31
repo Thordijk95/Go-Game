@@ -10,6 +10,9 @@ public class ConnectionHandler {
   public GoServer goServer;
   public Stone stone;
   public String username;
+  private boolean inGame;
+  private boolean inQueue;
+  private boolean loggedIn;
 
   public ConnectionHandler() {}
 
@@ -41,8 +44,8 @@ public class ConnectionHandler {
   public void receiveResign() {
     goServer.receiveResign(this);
   }
-  public void sendMove(String move, Stone stone) {
-    serverConnection.sendMove(GoProtocol.MOVE, move, stone);
+  public void sendMove(Move move) {
+    serverConnection.sendMove(move);
   }
 
   public void sendMessage(String message) {
@@ -61,5 +64,27 @@ public class ConnectionHandler {
     serverConnection.sendMessage(GoProtocol.ERROR + "~" + message);
     serverConnection.sendMessage(GoProtocol.MAKE_MOVE);
   }
+
+  public void setInGame() {
+    inGame = !(inGame);
+  }
+
+  public boolean getInGame() {
+    return inGame;
+  }
+
+  public void setInQueue() {
+    inQueue = !(inQueue);
+  }
+  public boolean getInQueue() {
+    return inQueue;
+  }
+  public void setLoggedIn() {
+    loggedIn = !(loggedIn);
+  }
+  public boolean getLoggedIn() {
+    return loggedIn;
+  }
+
 
 }

@@ -123,8 +123,8 @@ public class ServerConnection extends SocketConnection {
    * @param protocol used to differentiate different messages
    * @param move that was played.
    */
-  public void sendMove(String protocol, String move, Stone stone) {
-    super.sendMessage(String.format(protocol + "~" + move + "~" + stone.toString()));
+  public void sendMove(Move move) {
+    super.sendMessage(String.format(GoProtocol.MOVE + "~" + move.index + "~" + move.stone.toString()));
   }
 
   @Override

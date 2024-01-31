@@ -76,8 +76,6 @@ public abstract class SocketServer {
    */
   protected abstract void handleConnection(Socket socket);
 
-  public abstract List<ConnectionHandler> getPlayers();
-  public abstract List<Game> getGames();
 
 }
 
