@@ -27,12 +27,12 @@ public class Logic_Test {
   @BeforeEach
   void setup() {
     logic = new GoLogic();
-    players.add(player1);
-    players.add(player2);
   }
 
   @Test
   void testClusters() {
+    players.add(player1);
+    players.add(player2);
     goGame = new GoGame(dimension, players);
     dimension = 9;
     logic.dimension = dimension;
