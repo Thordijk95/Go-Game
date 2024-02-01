@@ -8,21 +8,10 @@ import game.player.AIPlayer;
 import game.player.Player;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 
 public class PlayerConnection extends SocketConnection {
-  public Player player;
 
-  /**
-   * Create a new SocketConnection. This is not meant to be used directly. Instead, the SocketServer
-   * and SocketClient classes should be used.
-   *
-   * @param socket the socket for this connection
-   * @throws IOException if there is an I/O exception while initializing the Reader/Writer objects
-   */
-  protected PlayerConnection(Socket socket) throws IOException {
-    super(socket);
-  }
+  public Player player;
 
   /**
    * Make a new TCP connection to the given host and port. The receiving thread is not started yet.
@@ -37,18 +26,6 @@ public class PlayerConnection extends SocketConnection {
   }
 
   /**
-   * Make a new TCP connection to the given host and port. The receiving thread is not started yet.
-   * Call start on the returned SocketConnection to start receiving messages.
-   *
-   * @param host the address of the server to connect to
-   * @param port the port of the server to connect to
-   * @throws IOException if the connection cannot be made or there was some other I/O problem
-   */
-  protected PlayerConnection(String host, int port) throws IOException {
-    super(host, port);
-  }
-
-  /**
    * Handles a message received from the connection.
    *
    * @param message the message received from the connection
@@ -59,10 +36,10 @@ public class PlayerConnection extends SocketConnection {
     String[] splitString = message.split("~");
 
     switch (splitString[0]) {
-      case GoProtocol.LOGIN -> {// Do nothing, this should never come from the server
-        sendMessage(GoProtocol.ERROR + "~This should not come from the server");
-      }
-      case GoProtocol.QUEUE -> sendMessage(GoProtocol.ERROR + "~This should not come from the server");
+      case GoProtocol.LOGIN -> // Do nothing, this should never come from the server
+          sendMessage(GoProtocol.ERROR + "~This should not come from the server");
+      case GoProtocol.QUEUE ->
+          sendMessage(GoProtocol.ERROR + "~This should not come from the server");
       case GoProtocol.PASS -> {
         // Opponent passed, make a move
         if (!splitString[1].equals(player.getColor())) {
@@ -75,15 +52,9 @@ public class PlayerConnection extends SocketConnection {
           player.automatedQueue();
         }
       }
-      case GoProtocol.REJECTED -> {
-        player.handleReject();
-      }
-      case GoProtocol.QUEUED -> {
-        player.setQueued();
-      }
-      case GoProtocol.MAKE_MOVE -> {
-        player.determineMove();
-      }
+      case GoProtocol.REJECTED -> player.handleReject();
+      case GoProtocol.QUEUED -> player.setQueued();
+      case GoProtocol.MAKE_MOVE -> player.determineMove();
       case GoProtocol.MOVE -> {
         // Update your board with any move reflected by the server
         int index = Integer.parseInt(splitString[1]);
@@ -113,9 +84,7 @@ public class PlayerConnection extends SocketConnection {
         System.out.println(message); // Game over TODO fix
         player.gameOver();
       }
-      case GoProtocol.ERROR -> {
-        player.handleError();
-      }
+      case GoProtocol.ERROR -> player.handleError();
     }
   }
 
@@ -132,7 +101,8 @@ public class PlayerConnection extends SocketConnection {
     return super.sendMessage(message);
   }
 
-  public void sendMove(Move move){
-    super.sendMessage(String.format(GoProtocol.MOVE + "~" + move.index + "~" + move.stone.toString()));
+  public void sendMove(Move move) {
+    super.sendMessage(
+        String.format(GoProtocol.MOVE + "~" + move.index + "~" + move.stone.toString()));
   }
 }

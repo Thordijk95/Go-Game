@@ -2,9 +2,7 @@ package game.player;
 
 import connectivity.client.PlayerConnection;
 import connectivity.client.PlayerTui;
-import game.Board;
 import game.Move;
-import game.Stone;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -12,7 +10,8 @@ import java.util.Random;
 
 public class PlayerPlayer extends game.player.AbstractPlayer {
 
-  public PlayerPlayer() { }
+  public PlayerPlayer() {
+  }
 
   public PlayerPlayer(String username) {
     super.setUsername(username);
@@ -31,7 +30,7 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
       playerConnection = new PlayerConnection(inetAddress, port);
       playerConnection.player = this;
       playerConnection.start();
-    } catch (UnknownHostException e){
+    } catch (UnknownHostException e) {
       e.printStackTrace();
     }
   }
@@ -49,15 +48,11 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
   @Override
   public void determineMove() {
     if (playerTui != null) {
-      playerTui.determinMoveTui();
+      playerTui.determineMoveTui();
     } else {
-      playerConnection.sendMove(new Move(stone, new Random().nextInt((int) Math.pow(super.goGame.getDimension(), 2))));
+      playerConnection.sendMove(
+          new Move(stone, new Random().nextInt((int) Math.pow(super.goGame.getDimension(), 2))));
     }
-  }
-
-  @Override
-  public void handleReject() {
-
   }
 
   @Override

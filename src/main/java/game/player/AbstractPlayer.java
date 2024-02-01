@@ -1,8 +1,6 @@
 package game.player;
 
-import connectivity.SocketConnection;
 import connectivity.client.PlayerConnection;
-import game.Board;
 import game.Game;
 import game.GoGame;
 import game.Move;
@@ -10,9 +8,9 @@ import game.Position;
 import game.Stone;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-public abstract class AbstractPlayer implements Player{
+public abstract class AbstractPlayer implements Player {
+
   public boolean queued = false;
   private boolean connected = false;
   private boolean logggedIn = false;
@@ -24,20 +22,27 @@ public abstract class AbstractPlayer implements Player{
   public Position position;
 
   public Game goGame;
-  public AbstractPlayer() {};
+
+  public AbstractPlayer() {
+  }
+
   public AbstractPlayer(String username) {
     this.username = username;
   }
+
   @Override
   public String getUsername() {
     return username;
   }
+
   @Override
   public void setUsername(String username) {
     this.username = username;
   }
+
   @Override
   public abstract void sendMessage(String message);
+
   @Override
   public boolean getConnected() {
     return connected;
@@ -46,10 +51,6 @@ public abstract class AbstractPlayer implements Player{
   @Override
   public void setConnected() {
     connected = true;
-  }
-  @Override
-  public void setDisconnected() {
-    connected = false;
   }
 
   @Override
@@ -80,7 +81,7 @@ public abstract class AbstractPlayer implements Player{
 
   @Override
   public void setQueued() {
-    queued = !(queued);
+    queued = !queued;
   }
 
   @Override
@@ -115,6 +116,7 @@ public abstract class AbstractPlayer implements Player{
   public void gameOver() {
 
   }
+
   @Override
   public void setInGame() {
     inGame = !inGame;

@@ -5,10 +5,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 /**
- * Wrapper for a Socket and implements reading messages that consist of a single line from the socket.
+ * Wrapper for a Socket and implements reading messages that consist of single line from the socket.
  * This class is not thread-safe.
  */
 public abstract class SocketConnection {
+
   private final Socket socket;
   private final BufferedReader in;
   private final BufferedWriter out;
@@ -28,23 +29,13 @@ public abstract class SocketConnection {
 
   /**
    * Make a new TCP connection to the given host and port.
-   * The receiving thread is not started yet. Call start on the returned SocketConnection to start receiving messages.
+   * The receiving thread is not started yet. Call start on the returned SocketConnection to start
+   * receiving messages.
    * @param host the address of the server to connect to
    * @param port the port of the server to connect to
    * @throws IOException if the connection cannot be made or there was some other I/O problem
    */
   protected SocketConnection(InetAddress host, int port) throws IOException {
-    this(new Socket(host, port));
-  }
-
-  /**
-   * Make a new TCP connection to the given host and port.
-   * The receiving thread is not started yet. Call start on the returned SocketConnection to start receiving messages.
-   * @param host the address of the server to connect to
-   * @param port the port of the server to connect to
-   * @throws IOException if the connection cannot be made or there was some other I/O problem
-   */
-  protected SocketConnection(String host, int port) throws IOException {
     this(new Socket(host, port));
   }
 
@@ -105,8 +96,8 @@ public abstract class SocketConnection {
    */
   protected void close() {
     try {
-      // the way TCP works, the other side will receive a close event, and will then close the socket
-      // from its side as well, resulting in a closed connection in the reading thread.
+      // the way TCP works, the other side will receive a close event, and will then close the
+      // socket from its side as well, resulting in a closed connection in the reading thread.
       socket.close();
       // in principle, we should also close the in and out streams
       // however, closing the socket will also close the streams

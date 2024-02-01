@@ -1,7 +1,6 @@
 package game;
 
 import com.nedap.go.exceptions.InvalidMoveException;
-import com.nedap.go.exceptions.InvalidPlayerTurnException;
 import com.nedap.go.gui.GoGui;
 import com.nedap.go.gui.GoGuiIntegrator;
 import com.nedap.go.gui.InvalidCoordinateException;
@@ -14,9 +13,10 @@ import java.util.List;
 /**
  * Class the represents a GoGame, implements the Game interface.
  */
-public class GoGame implements Game{
+public class GoGame implements Game {
+
   private ConnectionHandler turn;
-  private GoLogic logic = new GoLogic();
+  private GoLogic logic;
   public Board board;
   public int consecutivePasses;
   public List<ConnectionHandler> players;
@@ -27,8 +27,13 @@ public class GoGame implements Game{
 
   private GoGui goGui;
 
-  public GoGame(int dimension, Player player) {
+  /**
+   * Specific constructor for a game owned by a single player.
+   * @param dimension of the board
+   */
+  public GoGame(int dimension) {
     board = new Board(dimension);
+    logic = new GoLogic();
     logic.dimension = dimension;
     consecutivePasses = 0;
     goGui = new GoGuiIntegrator(true, false, dimension);
@@ -36,10 +41,10 @@ public class GoGame implements Game{
   }
 
   /**
-   * When a game is started the logic is added and the board is created.
-   * Every game has a logic list of players represented by the connection handlers on the server side
+   * When a game is started the logic is added and the board is created. Every game has a logic list
+   * of players represented by the connection handlers on the server side
    */
-  public GoGame(int dimension, List<ConnectionHandler> queuedPlayers){
+  public GoGame(int dimension, List<ConnectionHandler> queuedPlayers) {
     board = new Board(dimension);
     players = queuedPlayers;
     players.getFirst().stone = Stone.BLACK;
@@ -53,6 +58,7 @@ public class GoGame implements Game{
 
   /**
    * If a move is valid, the position of the board is updated.
+   *
    * @param move being played.
    */
   @Override
@@ -63,7 +69,7 @@ public class GoGame implements Game{
     List<int[]> capturedStones = logic.checkCaptures(potentialPosition, move.stone);
     int[] xy = logic.calculateXY(move.index);
     try {
-      goGui.addStone(xy[0], xy[1], (move.stone == Stone.WHITE));
+      goGui.addStone(xy[0], xy[1], move.stone == Stone.WHITE);
       for (int[] capture : capturedStones) {
         goGui.removeStone(capture[0], capture[1]);
       }
@@ -99,14 +105,15 @@ public class GoGame implements Game{
   public List<ConnectionHandler> getPLayers() {
     return players;
   }
+
   @Override
   public void switchTurn() {
     turn = getOtherPlayer(turn);
   }
 
   /**
-   * Get the winner of the game.
-   * Score is based on area
+   * Get the winner of the game. Score is based on area
+   *
    * @return Which stone won,
    */
   @Override
@@ -116,8 +123,11 @@ public class GoGame implements Game{
       return Stone.BLACK;
     } else if (board.currentPosition.score.scoreBlack < board.currentPosition.score.scoreWhite) {
       return Stone.WHITE;
-    } else { return Stone.NONE; }
+    } else {
+      return Stone.NONE;
+    }
   }
+
   @Override
   public void setPosition(Position position) {
     board.currentPosition = position;
@@ -126,7 +136,8 @@ public class GoGame implements Game{
 
   /**
    * This method is called when a pass is received from a player.
-   * @param player
+   *
+   * @param player that played a pass
    */
   @Override
   public int pass(ConnectionHandler player) {
@@ -148,7 +159,9 @@ public class GoGame implements Game{
   public ConnectionHandler getOtherPlayer(ConnectionHandler player) {
     if (players.getFirst() == player) {
       return players.getLast();
-    } else { return players.getFirst(); }
+    } else {
+      return players.getFirst();
+    }
   }
 
   @Override
@@ -161,14 +174,14 @@ public class GoGame implements Game{
     // get the list corresponding to the score
     List<Integer> hashes = scorePositionHashMap.get(score);
     if (hashes != null) {
-       newHashes.addAll(hashes);
+      newHashes.addAll(hashes);
     }
     newHashes.add(board.currentPosition.hash);
     scorePositionHashMap.put(score, newHashes);
   }
 
   @Override
-  public int getDimension(){
+  public int getDimension() {
     return board.dimension;
   }
 }

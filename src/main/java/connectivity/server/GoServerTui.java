@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class GoServerTui {
-  private Integer dimension = 9;
+
   private GoServer goServer;
 
-  public GoServerTui() {}
+  public GoServerTui() {
+  }
 
   public static void main(String[] args) {
     GoServerTui serverTui = new GoServerTui();
@@ -23,6 +24,7 @@ public class GoServerTui {
   }
 
   public void run() {
+    Integer dimension = 9;
     Scanner input = new Scanner(System.in);
     System.out.println("Please provide the port where to start the server:");
     int port = input.nextInt();
@@ -38,20 +40,25 @@ public class GoServerTui {
     String lastMessage = "";
     while (!lastMessage.equals("--quit")) {
       lastMessage = input.next();
-      if (!lastMessage.equals("")) {
+      if (!lastMessage.isEmpty()) {
         String[] splitString = lastMessage.replace(" ", "").split("~");
         switch (splitString[0]) {
           case "--dimension":
             try {
-              goServer.gameDimension = Integer.parseInt(splitString[0]);
+              dimension = Integer.parseInt(splitString[0]);
+              goServer.gameDimension = dimension;
             } catch (NumberFormatException e) {
               System.out.println("not a number format, try again");
             }
-          case "--help":
+            break;
+          case "--help": {
             help();
-          default:
+            break;
+          }
+          default: {
             System.out.println("That is not a valid input.");
             help();
+          }
         }
       }
     }

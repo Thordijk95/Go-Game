@@ -1,15 +1,12 @@
 package connectivity.server;
 
 import com.nedap.go.exceptions.InvalidMessageException;
-import com.nedap.go.exceptions.InvalidNameException;
 import connectivity.SocketConnection;
 import connectivity.protocol.GoProtocol;
 
 import game.GoLogic;
 import game.Move;
-import game.Stone;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 
 public class ServerConnection extends SocketConnection {
@@ -29,30 +26,6 @@ public class ServerConnection extends SocketConnection {
   }
 
   /**
-   * Make a new TCP connection to the given host and port.
-   * The receiving thread is not started yet. Call start on the returned SocketConnection to start receiving messages.
-   *
-   * @param host the address of the server to connect to
-   * @param port the port of the server to connect to
-   * @throws IOException if the connection cannot be made or there was some other I/O problem
-   */
-  protected ServerConnection(InetAddress host, int port) throws IOException {
-    super(host, port);
-  }
-
-  /**
-   * Make a new TCP connection to the given host and port.
-   * The receiving thread is not started yet. Call start on the returned SocketConnection to start
-   * receiving messages.
-   * @param host the address of the server to connect to
-   * @param port the port of the server to connect to
-   * @throws IOException if the connection cannot be made or there was some other I/O problem
-   */
-  protected ServerConnection(String host, int port) throws IOException {
-    super(host, port);
-  }
-
-  /**
    * Handles a message received from the connection.
    * Message is parsed based on the provided protocol.
    * @param message the message received from the connection
@@ -69,9 +42,7 @@ public class ServerConnection extends SocketConnection {
           username = substrings[1];
           connectionHandler.receiveUsername(substrings[1]);
         }
-        case GoProtocol.QUEUE -> {
-          connectionHandler.receiveQueueRequest();
-        }
+        case GoProtocol.QUEUE -> connectionHandler.receiveQueueRequest();
         case GoProtocol.MOVE -> {
           int index;
           String location = substrings[1];
@@ -120,11 +91,11 @@ public class ServerConnection extends SocketConnection {
 
   /**
    * Send a move to the players for them to update their board with.
-   * @param protocol used to differentiate different messages
    * @param move that was played.
    */
   public void sendMove(Move move) {
-    super.sendMessage(String.format(GoProtocol.MOVE + "~" + move.index + "~" + move.stone.toString()));
+    super.sendMessage(
+        String.format(GoProtocol.MOVE + "~" + move.index + "~" + move.stone.toString()));
   }
 
   @Override
@@ -133,6 +104,8 @@ public class ServerConnection extends SocketConnection {
     return super.sendMessage(msg);
   }
 
-  public String getUsername() {return username;}
+  public String getUsername() {
+    return username;
+  }
 
 }

@@ -1,18 +1,17 @@
 package connectivity.client;
 
-import game.Move;
-import game.Stone;
-import game.player.*;
+import game.player.PlayerPlayer;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class PlayerTui {
-  private boolean connection;
-  private PlayerPlayer player;
 
-  public PlayerTui(){};
+  private boolean connection;
+
+  public PlayerTui() {
+  }
 
   public static void main(String[] args) {
     PlayerTui playerTui = new PlayerTui();
@@ -26,7 +25,7 @@ public class PlayerTui {
     while (!connection) {
       System.out.println("Please provide a username: ");
       player.setUsername(input.nextLine());
-      InetAddress inetAddress = null;
+      InetAddress inetAddress;
       while (true) {
         try {
           System.out.println("Please provide the InetAddress where to make a connection: ");
@@ -45,8 +44,9 @@ public class PlayerTui {
         player.setPlayerConnection(inetAddress, port);
         System.out.println("Connection to the server established!");
         connection = true;
+        break;
       } catch (IOException e) {
-        System.out.println("IOException, please provide a new address and or portnumber");
+        System.out.println("IOException, please provide a new address and or port number");
         e.printStackTrace();
       }
     }
@@ -54,7 +54,7 @@ public class PlayerTui {
     String lastMessage = "";
     while (!lastMessage.equals("--quit")) {
       lastMessage = input.nextLine();
-      if (!lastMessage.equals("--help") && !lastMessage.equals("")) {
+      if (!lastMessage.equals("--help") && !lastMessage.isEmpty()) {
         player.sendMessage(lastMessage);
       }
     }
@@ -75,7 +75,7 @@ public class PlayerTui {
     System.out.println("ERROR ~ <error message> to communicate an error to the server");
   }
 
-  public void determinMoveTui() {
+  public void determineMoveTui() {
     // Do nothing, handled by server
   }
 

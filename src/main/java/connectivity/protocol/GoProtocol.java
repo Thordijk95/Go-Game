@@ -1,6 +1,7 @@
 package connectivity.protocol;
 
 public final class GoProtocol {
+
   public static final String SEPARATOR = "~";
   public static final String LOGIN = "LOGIN";
   public static final String QUEUE = "QUEUE";
@@ -17,6 +18,8 @@ public final class GoProtocol {
   public static final String GAME_STARTED = "GAME STARTED";
   public static final String GAME_OVER = "GAME OVER";
   public static final String DISCONNECTED = "DISCONNECTED";
-  private GoProtocol() {}
+
+  private GoProtocol() {
+  }
 
 }

@@ -1,11 +1,11 @@
 package connectivity.server;
 
-import com.nedap.go.Go;
 import connectivity.protocol.GoProtocol;
 import game.Move;
 import game.Stone;
 
 public class ConnectionHandler {
+
   public ServerConnection serverConnection;
   public GoServer goServer;
   public Stone stone;
@@ -14,7 +14,8 @@ public class ConnectionHandler {
   private boolean inQueue;
   private boolean loggedIn;
 
-  public ConnectionHandler() {}
+  public ConnectionHandler() {
+  }
 
   public void receiveQueueRequest() {
     goServer.addToQueue(this);
@@ -28,8 +29,8 @@ public class ConnectionHandler {
     return serverConnection.getUsername();
   }
 
-  public void receiveUsername(String username) {
-    this.username = username;
+  public void receiveUsername(String name) {
+    this.username = name;
     goServer.addPlayer(this);
   }
 
@@ -44,6 +45,7 @@ public class ConnectionHandler {
   public void receiveResign() {
     goServer.receiveResign(this);
   }
+
   public void sendMove(Move move) {
     serverConnection.sendMove(move);
   }
@@ -53,7 +55,7 @@ public class ConnectionHandler {
   }
 
   public void sendError(String errorMessage) {
-    serverConnection.sendMessage(GoProtocol.ERROR + "~"+ errorMessage);
+    serverConnection.sendMessage(GoProtocol.ERROR + "~" + errorMessage);
   }
 
   /**
@@ -66,7 +68,7 @@ public class ConnectionHandler {
   }
 
   public void setInGame() {
-    inGame = !(inGame);
+    inGame = !inGame;
   }
 
   public boolean getInGame() {
@@ -74,14 +76,17 @@ public class ConnectionHandler {
   }
 
   public void setInQueue() {
-    inQueue = !(inQueue);
+    inQueue = !inQueue;
   }
+
   public boolean getInQueue() {
     return inQueue;
   }
+
   public void setLoggedIn() {
-    loggedIn = !(loggedIn);
+    loggedIn = !loggedIn;
   }
+
   public boolean getLoggedIn() {
     return loggedIn;
   }
