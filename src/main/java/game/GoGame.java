@@ -59,6 +59,7 @@ public class GoGame implements Game {
    */
   public GoGame(int dimension, List<ConnectionHandler> queuedPlayers) {
     board = new Board(dimension);
+    logic = new GoLogic();
     players = queuedPlayers;
     players.getFirst().stone = Stone.BLACK;
     players.getLast().stone = Stone.WHITE;
