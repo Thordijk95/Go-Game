@@ -42,7 +42,7 @@ public class PlayerConnection extends SocketConnection {
           sendMessage(GoProtocol.ERROR + "~This should not come from the server");
       case GoProtocol.PASS -> {
         // Opponent passed, make a move
-        if (!splitString[1].equals(player.getColor())) {
+        if (!splitString[1].equals(player.getStone())) {
           player.determineMove();
         }
       }

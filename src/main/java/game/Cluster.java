@@ -11,7 +11,10 @@ public class Cluster {
   public List<int[]> territoryList;
   public List<Stone> borderStones;
 
+  public int eyes;
+
   public Cluster(Stone stone) {
+    this.eyes = 0;
     this.stone = stone;
     intersectionList = new ArrayList<>();
     coordinatesBorder = new ArrayList<>();

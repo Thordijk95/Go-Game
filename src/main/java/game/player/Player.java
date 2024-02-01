@@ -1,6 +1,7 @@
 package game.player;
 
 import game.Move;
+import game.Stone;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -22,7 +23,9 @@ public interface Player {
 
   void handleReject();
 
-  String getColor();
+  Stone getStone();
+
+  String getStoneString();
 
   void setColor(String color);
 

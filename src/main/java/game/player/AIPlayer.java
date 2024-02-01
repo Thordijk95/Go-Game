@@ -3,13 +3,22 @@ package game.player;
 import com.nedap.go.exceptions.InvalidMoveException;
 import connectivity.client.PlayerConnection;
 import connectivity.protocol.GoProtocol;
+import game.Cluster;
+import game.GoLogic;
 import game.Move;
+import game.Position;
+import game.Score;
+import game.Stone;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class AIPlayer extends AbstractPlayer {
+
+  private GoLogic logic;
 
   private PlayerConnection playerConnection;
   private static final String USERNAME = "AI";
@@ -67,6 +76,7 @@ public class AIPlayer extends AbstractPlayer {
   }
 
   public void run(String[] args) {
+    logic = new GoLogic();
     int attempt = 0;
     while (true) {
       try {
@@ -89,5 +99,38 @@ public class AIPlayer extends AbstractPlayer {
         e.printStackTrace();
       }
     }
+  }
+
+  private int[] notSoNaiveAI() {
+    double temperature = 100;
+    Random rand = new Random();
+    Score startScore = goGame.getStatePosition().score;
+
+    int[] potentialIntersection = logic.calculateXY(rand.nextInt((int) Math.pow(goGame.getDimension(), 2)));
+    Position potentialPosition = new Position(goGame.getStatePosition(),
+        new Move(getStone(), logic.calculateIndex(potentialIntersection)));
+    logic.findClusters(potentialPosition);
+    List<int[]> captures = logic.checkCaptures(potentialPosition, stone);
+    // if any capture was found, perform this move
+    if (!captures.isEmpty()) {
+      // do the capture
+      return potentialIntersection;
+    } else {
+      for (int[] capture : captures) {
+        potentialPosition.setIntersection(logic.calculateIndex(capture), Stone.NONE);
+      }
+      Score score = logic.score(potentialPosition);
+      while (temperature >= 1) {
+        switch (stone) {
+          case BLACK -> {
+            if (potentialPosition.score.scoreBlack > startScore.scoreBlack) {
+
+            }
+          }
+        }
+
+      }
+    }
+    return new int[] {0,0};
   }
 }

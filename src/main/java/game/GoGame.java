@@ -31,6 +31,19 @@ public class GoGame implements Game {
    * Specific constructor for a game owned by a single player.
    * @param dimension of the board
    */
+  public GoGame(int dimension, Player player) {
+    board = new Board(dimension);
+    logic = new GoLogic();
+    logic.dimension = dimension;
+    consecutivePasses = 0;
+    goGui = new GoGuiIntegrator(true, false, dimension);
+    goGui.startGUI();
+  }
+
+  /**
+   * Specific constructor for a game owned by a single player.
+   * @param dimension of the board
+   */
   public GoGame(int dimension) {
     board = new Board(dimension);
     logic = new GoLogic();

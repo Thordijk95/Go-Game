@@ -57,8 +57,13 @@ public abstract class AbstractPlayer implements Player {
   public abstract void determineMove();
 
   @Override
-  public String getColor() {
-    return stone.toString();
+  public Stone getStone() {
+    return stone;
+  }
+
+  @Override
+  public String getStoneString() {
+   return stone.toString();
   }
 
   @Override

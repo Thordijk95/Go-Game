@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Random;
 
-public class PlayerPlayer extends game.player.AbstractPlayer {
+public class PlayerPlayer extends AbstractPlayer {
 
   public PlayerPlayer() {
   }
@@ -53,6 +53,11 @@ public class PlayerPlayer extends game.player.AbstractPlayer {
       playerConnection.sendMove(
           new Move(stone, new Random().nextInt((int) Math.pow(super.goGame.getDimension(), 2))));
     }
+  }
+
+  @Override
+  public String getStoneString() {
+    return null;
   }
 
   @Override
