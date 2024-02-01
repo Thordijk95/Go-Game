@@ -31,7 +31,5 @@ replay_pid*
 /target
 /javafx-sdk-21.0.2
 
-Report.odt
-
 .idea
 *.iml
