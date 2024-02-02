@@ -39,25 +39,11 @@ public class AIPlayer extends AbstractPlayer {
 
   @Override
   public void determineMove() {
-    int attempt = 0;
-    Random rand = new Random();
-    while (true) {
-      int guess = rand.nextInt((int) Math.pow(goGame.getDimension(), 2));
-      Move move = new Move(stone, guess);
-      try {
-        if (goGame.validateMove(move)) {
-          playerConnection.sendMove(move);
-          break;
-        }
-      } catch (InvalidMoveException e) {
-        // do nothing, try 20 times
-        attempt += 1;
-        if (attempt == 20) {
-          playerConnection.sendMessage(GoProtocol.PASS);
-          break;
-        }
-      }
-    }
+    logic.dimension = goGame.getDimension();
+    // int index = naiveAI();
+    int index = notSoNaiveAI();
+    Move move = new Move(stone, index);
+    playerConnection.sendMove(move);
   }
 
   @Override
@@ -80,7 +66,7 @@ public class AIPlayer extends AbstractPlayer {
     int attempt = 0;
     while (true) {
       try {
-        playerConnection = new PlayerConnection(InetAddress.getLocalHost(),
+        playerConnection = new PlayerConnection(InetAddress.getByName(args[0]),
             Integer.parseInt(args[1]));
         playerConnection.player = this;
         break;
@@ -101,41 +87,99 @@ public class AIPlayer extends AbstractPlayer {
     }
   }
 
-//  private int[] notSoNaiveAI() {
-//    double temperature = 100;
-//    Random rand = new Random();
-//    Score startScore = goGame.getStatePosition().score;
-//
-//    int[] potentialIntersection = logic.calculateXY(rand.nextInt((int) Math.pow(goGame.getDimension(), 2)));
-//    Position potentialPosition = new Position(goGame.getStatePosition(),
-//        new Move(getStone(), logic.calculateIndex(potentialIntersection)));
-//    Position bestPosition = new Position(l)
-//    List<int[]> captures = logic.checkCaptures(potentialPosition, stone);
-//    // if any capture was found, perform this move
-//    if (!captures.isEmpty()) {
-//      // do the capture
-//      return potentialIntersection;
-//    } else {
-//      HashMap<Stone, List<Cluster>> clusters = logic.findClusters(potentialPosition);
-//      Score score = logic.score(potentialPosition);
-//      while (temperature >= 1) {
-//        switch (stone) {
-//          case BLACK -> {
-//            // Check if you infringe on territory
-//            if (potentialPosition.score.scoreWhite < startScore.scoreWhite) {
-//              temperature = temperature * 0.98;
-//              if (potentialPosition.score.scoreWhite < bestPosition.score.scoreWhite)
-//            }
-//          }
-//          case WHITE -> {
-//            if (potentialPosition.score.scoreBlack < startScore.scoreBlack) {
-//              temperature = temperature * 0.98;
-//            }
-//          }
-//        }
-//
-//      }
-//    }
-//    return new int[] {0,0};
-//  }
+  @Override
+  public void handleReject(String rejectedName) {
+    int iterator;
+    String baseName;
+    if (rejectedName.contains("_")) {
+      String[] name_config = rejectedName.split("_");
+      baseName = name_config[0];
+      iterator = Integer.parseInt(name_config[1]);
+      iterator += 1;
+    } else {
+      iterator = 1;
+    }
+    String newName = rejectedName+"_"+ iterator;
+    username = newName;
+    playerConnection.sendMessage("LOGIN~"+username);
+  }
+
+  private int naiveAI() {
+    int attempt = 0;
+    Random rand = new Random();
+    while (true) {
+      int guess = rand.nextInt((int) Math.pow(goGame.getDimension(), 2));
+      Move move = new Move(stone, guess);
+      try {
+        if (goGame.validateMove(move)) {
+          return guess;
+        }
+      } catch (InvalidMoveException e) {
+        // do nothing, try 20 times
+        attempt += 1;
+        if (attempt == 20) {
+          return -1;
+        }
+      }
+    }
+  }
+  private int notSoNaiveAI() {
+    double temperature = 20;
+    Random rand = new Random();
+    Score startScore = goGame.getStatePosition().score;
+
+    int potentialIntersection = logic.calculateIndex(logic.calculateXY(
+        rand.nextInt((int) Math.pow(goGame.getDimension(), 2))));
+    int bestPotentialIntersection = potentialIntersection;
+    Position potentialPosition = new Position(goGame.getStatePosition(),
+        new Move(getStone(), potentialIntersection));
+    Position bestPosition = potentialPosition.clonePosition(goGame.getDimension());
+    HashMap<Stone, List<Cluster>> potentialClusters = logic.findClusters(potentialPosition);
+    List<int[]> captures = logic.checkCaptures(potentialPosition, stone);
+    // if any capture was found, perform this move
+    if (!captures.isEmpty()) {
+      // do the capture
+      return bestPotentialIntersection;
+    } else {
+      potentialIntersection = logic.calculateIndex(logic.calculateXY(
+          rand.nextInt((int) Math.pow(goGame.getDimension(), 2))));
+      potentialPosition = new Position(goGame.getStatePosition(),
+          new Move(getStone(), potentialIntersection));
+      HashMap<Stone, List<Cluster>> clusters = logic.findClusters(potentialPosition);
+      if (clusters.get(stone).size() <= 1) {
+        return bestPotentialIntersection;
+      }
+      while (temperature >= 1) {
+        potentialIntersection = logic.calculateIndex(logic.calculateXY(
+            rand.nextInt((int) Math.pow(goGame.getDimension(), 2))));
+        potentialPosition = new Position(goGame.getStatePosition(),
+            new Move(getStone(), potentialIntersection));
+        logic.findClusters(potentialPosition);
+        Score score = logic.score(potentialPosition);
+        switch (stone) {
+          case BLACK -> {
+//            List<Cluster> clusters = potentialClusters.get(stone);
+            // Check if you infringe on territory
+            if (score.scoreWhite < startScore.scoreWhite) {
+              temperature = temperature * 0.98;
+              if (score.scoreWhite < bestPosition.score.scoreWhite) {
+                bestPosition = potentialPosition.clonePosition(goGame.getDimension());
+                bestPotentialIntersection = potentialIntersection;
+              }
+            }
+          }
+          case WHITE -> {
+            if (score.scoreBlack < startScore.scoreBlack) {
+              temperature = temperature * 0.98;
+              if (score.scoreBlack < bestPosition.score.scoreBlack) {
+                bestPosition = potentialPosition.clonePosition(goGame.getDimension());
+                bestPotentialIntersection = potentialIntersection;
+              }
+            }
+          }
+        }
+      }
+    }
+    return bestPotentialIntersection;
+  }
 }

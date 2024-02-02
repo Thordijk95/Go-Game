@@ -168,6 +168,14 @@ public class Position {
     return stone;
   }
 
+  public Position clonePosition(int dimension) {
+    Position clonedPosition = new Position(dimension);
+    for (Intersection intersection : intersectionList) {
+      clonedPosition.setIntersection(intersection.index, intersection.stone);
+    }
+    return clonedPosition;
+  }
+
   public static void main(String[] args) {
     Position newPosition = new Position(11);
     System.out.println(newPosition);

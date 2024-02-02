@@ -52,7 +52,7 @@ public class PlayerConnection extends SocketConnection {
           player.automatedQueue();
         }
       }
-      case GoProtocol.REJECTED -> player.handleReject();
+      case GoProtocol.REJECTED -> player.handleReject(splitString[1]);
       case GoProtocol.QUEUED -> player.setQueued();
       case GoProtocol.MAKE_MOVE -> player.determineMove();
       case GoProtocol.MOVE -> {

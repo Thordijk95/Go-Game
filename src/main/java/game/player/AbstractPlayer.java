@@ -108,9 +108,7 @@ public abstract class AbstractPlayer implements Player {
   }
 
   @Override
-  public void handleReject() {
-
-  }
+  public abstract void handleReject(String rejectedName);
 
   @Override
   public void handleError() {

@@ -36,6 +36,11 @@ public class PlayerPlayer extends AbstractPlayer {
   }
 
   @Override
+  public void handleReject(String rejectedName) {
+
+  }
+
+  @Override
   public String getUsername() {
     return super.getUsername();
   }

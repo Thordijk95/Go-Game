@@ -21,7 +21,7 @@ public interface Player {
 
   void determineMove();
 
-  void handleReject();
+  void handleReject(String rejectedName);
 
   Stone getStone();
 
