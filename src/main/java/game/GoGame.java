@@ -147,7 +147,6 @@ public class GoGame implements Game {
     board.currentPosition = position;
   }
 
-
   /**
    * This method is called when a pass is received from a player.
    *
@@ -165,9 +164,7 @@ public class GoGame implements Game {
   }
 
   @Override
-  public void gameOverResign(ConnectionHandler player) {
-
-  }
+  public void gameOverResign(ConnectionHandler player) { }
 
   @Override
   public ConnectionHandler getOtherPlayer(ConnectionHandler player) {

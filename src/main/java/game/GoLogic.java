@@ -4,6 +4,7 @@ import com.nedap.go.exceptions.IntersectionOccupiedException;
 import com.nedap.go.exceptions.InvalidMoveException;
 import com.nedap.go.exceptions.KoRuleException;
 import com.nedap.go.exceptions.MovePositionOutOfBounds;
+import com.nedap.go.gui.InvalidCoordinateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,11 +40,13 @@ public class GoLogic {
     if (stoneClusterHashMap.get(Stone.BLACK) != null) {
       for (Cluster cluster : stoneClusterHashMap.get(Stone.BLACK)) {
         scoreBlack += cluster.territoryList.size();
+        scoreBlack += cluster.intersectionList.size();
       }
     }
     if (stoneClusterHashMap.get(Stone.WHITE) != null) {
       for (Cluster cluster : stoneClusterHashMap.get(Stone.WHITE)) {
         scoreWhite += cluster.territoryList.size();
+        scoreWhite += cluster.intersectionList.size();
       }
     }
     Score score = new Score(scoreBlack, scoreWhite);
@@ -70,8 +73,10 @@ public class GoLogic {
     }
   }
 
-  public int calculateIndex(int[] coordinate) {
-    return coordinate[0] + coordinate[1] * dimension;
+  public int calculateIndex(int[] coordinate){
+    if (coordinate[0] < dimension || coordinate[1] < dimension) {
+      return coordinate[0] + coordinate[1] * dimension;
+    } else { return dimension*dimension+1; }
   }
 
   /**
@@ -305,7 +310,6 @@ public class GoLogic {
         if (found) break;
       }
     }
-
   }
 
   /**

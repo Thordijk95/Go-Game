@@ -90,7 +90,7 @@ public class Logic_Test {
     Position newPosition = new Position(dimension);
     newPosition.setIntersection(0, Stone.BLACK);
     newPosition.score = logic.score(newPosition);
-    assertEquals(80, newPosition.score.scoreBlack);
+    assertEquals(81, newPosition.score.scoreBlack);
 
     newPosition.setIntersection(1, Stone.BLACK);
     newPosition.setIntersection(2, Stone.BLACK);
@@ -113,8 +113,8 @@ public class Logic_Test {
 
     newPosition.score = logic.score(newPosition);
     System.out.println(newPosition.toString());
-    assertEquals(6, newPosition.score.scoreBlack);
-    assertEquals(15, newPosition.score.scoreWhite);
+    assertEquals(15, newPosition.score.scoreBlack);
+    assertEquals(24, newPosition.score.scoreWhite);
 
     Position position2 = new Position(dimension);
     position2.setIntersection(45, Stone.BLACK);
@@ -138,8 +138,8 @@ public class Logic_Test {
     position2.setIntersection(21, Stone.WHITE);
     position2.score = logic.score(position2);
     System.out.println(position2.toString());
-    assertEquals(8, position2.score.scoreBlack);
-    assertEquals(4, position2.score.scoreWhite);
+    assertEquals(18, position2.score.scoreBlack);
+    assertEquals(12, position2.score.scoreWhite);
 
 
     Position position3 = new Position(dimension);
@@ -185,8 +185,8 @@ public class Logic_Test {
 
     position3.score = logic.score(position3);
     System.out.println(position3.toString());
-    assertEquals(29, position3.score.scoreBlack);
-    assertEquals(9, position3.score.scoreWhite);
+    assertEquals(51, position3.score.scoreBlack);
+    assertEquals(25, position3.score.scoreWhite);
 
     Position position4 = new Position(dimension);
     position4.setIntersection(9, Stone.BLACK);
@@ -213,8 +213,8 @@ public class Logic_Test {
 
     position4.score = logic.score(position4);
     System.out.println(position4.toString());
-    assertEquals(31, position4.score.scoreBlack);
-    assertEquals(9, position4.score.scoreWhite);
+    assertEquals(45, position4.score.scoreBlack);
+    assertEquals(15, position4.score.scoreWhite);
   }
 
   @Test
@@ -289,7 +289,7 @@ public class Logic_Test {
     goGame.updateState(new Move(Stone.BLACK, 19));
 
     System.out.println(goGame.board.currentPosition.toString());
-    assertEquals(77, goGame.board.currentPosition.score.scoreBlack);
+    assertEquals(81, goGame.board.currentPosition.score.scoreBlack);
 
     goGame.updateState(new Move(Stone.WHITE, 72));
     goGame.updateState(new Move(Stone.BLACK, 10));
@@ -306,6 +306,6 @@ public class Logic_Test {
     goGame.updateState(new Move(Stone.WHITE, 0));
 
     System.out.println(goGame.board.currentPosition.toString());
-    assertEquals(7, goGame.board.currentPosition.score.scoreWhite);
+    assertEquals(14, goGame.board.currentPosition.score.scoreWhite);
   }
 }

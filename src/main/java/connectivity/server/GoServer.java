@@ -68,6 +68,7 @@ public class GoServer extends SocketServer {
   @Override
   protected void handleConnection(Socket socket) {
     try {
+      System.out.println("Connection request");
       ServerConnection serverConnection = new ServerConnection(socket);
       ConnectionHandler connectionHandler = new ConnectionHandler();
       connectionHandler.serverConnection = serverConnection;

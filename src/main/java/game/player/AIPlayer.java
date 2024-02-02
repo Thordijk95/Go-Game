@@ -101,36 +101,41 @@ public class AIPlayer extends AbstractPlayer {
     }
   }
 
-  private int[] notSoNaiveAI() {
-    double temperature = 100;
-    Random rand = new Random();
-    Score startScore = goGame.getStatePosition().score;
-
-    int[] potentialIntersection = logic.calculateXY(rand.nextInt((int) Math.pow(goGame.getDimension(), 2)));
-    Position potentialPosition = new Position(goGame.getStatePosition(),
-        new Move(getStone(), logic.calculateIndex(potentialIntersection)));
-    logic.findClusters(potentialPosition);
-    List<int[]> captures = logic.checkCaptures(potentialPosition, stone);
-    // if any capture was found, perform this move
-    if (!captures.isEmpty()) {
-      // do the capture
-      return potentialIntersection;
-    } else {
-      for (int[] capture : captures) {
-        potentialPosition.setIntersection(logic.calculateIndex(capture), Stone.NONE);
-      }
-      Score score = logic.score(potentialPosition);
-      while (temperature >= 1) {
-        switch (stone) {
-          case BLACK -> {
-            if (potentialPosition.score.scoreBlack > startScore.scoreBlack) {
-
-            }
-          }
-        }
-
-      }
-    }
-    return new int[] {0,0};
-  }
+//  private int[] notSoNaiveAI() {
+//    double temperature = 100;
+//    Random rand = new Random();
+//    Score startScore = goGame.getStatePosition().score;
+//
+//    int[] potentialIntersection = logic.calculateXY(rand.nextInt((int) Math.pow(goGame.getDimension(), 2)));
+//    Position potentialPosition = new Position(goGame.getStatePosition(),
+//        new Move(getStone(), logic.calculateIndex(potentialIntersection)));
+//    Position bestPosition = new Position(l)
+//    List<int[]> captures = logic.checkCaptures(potentialPosition, stone);
+//    // if any capture was found, perform this move
+//    if (!captures.isEmpty()) {
+//      // do the capture
+//      return potentialIntersection;
+//    } else {
+//      HashMap<Stone, List<Cluster>> clusters = logic.findClusters(potentialPosition);
+//      Score score = logic.score(potentialPosition);
+//      while (temperature >= 1) {
+//        switch (stone) {
+//          case BLACK -> {
+//            // Check if you infringe on territory
+//            if (potentialPosition.score.scoreWhite < startScore.scoreWhite) {
+//              temperature = temperature * 0.98;
+//              if (potentialPosition.score.scoreWhite < bestPosition.score.scoreWhite)
+//            }
+//          }
+//          case WHITE -> {
+//            if (potentialPosition.score.scoreBlack < startScore.scoreBlack) {
+//              temperature = temperature * 0.98;
+//            }
+//          }
+//        }
+//
+//      }
+//    }
+//    return new int[] {0,0};
+//  }
 }

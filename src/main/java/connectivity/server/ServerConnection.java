@@ -1,6 +1,7 @@
 package connectivity.server;
 
 import com.nedap.go.exceptions.InvalidMessageException;
+import com.nedap.go.gui.InvalidCoordinateException;
 import connectivity.SocketConnection;
 import connectivity.protocol.GoProtocol;
 
